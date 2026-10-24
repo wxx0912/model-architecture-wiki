@@ -1,13 +1,30 @@
 ---
-id: component-embedding-lm-head
-title: Token Embedding and LM Head
-type: component
-tags: [embedding, lm-head, ar, dllm, quantization]
-related: [paradigm-ar, paradigm-dllm, paradigm-multimodal]
-sources: [paper-transformer, paper-llada, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-embedding-lm-head",
+  "title": "Token Embedding and LM Head",
+  "type": "component",
+  "tags": [
+    "embedding",
+    "lm-head",
+    "ar",
+    "dllm",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-ar",
+    "paradigm-dllm",
+    "paradigm-multimodal"
+  ],
+  "sources": [
+    "paper-transformer",
+    "paper-llada",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # Token Embedding 与 LM Head
@@ -35,4 +52,3 @@ Embedding 权重通常为 `[V, d_model]`，输入 `[B,T]` 得到 `[B,T,d_model]`
 1. 从权重 key 和 config 确认 embedding/head 是否共享及其分片。
 2. 比较量化前后 logits、top-k、token 置信度和生成/填充决策。
 3. 验证导出回载后 tied weight、词表和特殊 token 仍一致。
-

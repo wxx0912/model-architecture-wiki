@@ -1,0 +1,111 @@
+{
+  "page": {
+    "required": [
+      "id",
+      "title",
+      "type",
+      "tags",
+      "aliases",
+      "related",
+      "sources",
+      "confidence",
+      "evidence_scope",
+      "updated"
+    ],
+    "optional": [
+      "structure_profile",
+      "prerequisites",
+      "version_sensitive"
+    ],
+    "rules": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]+$"
+      },
+      "type": {
+        "type": "string",
+        "vocabulary": "page_types"
+      },
+      "tags": {
+        "type": "array",
+        "vocabulary": "tags"
+      },
+      "aliases": {
+        "type": "array"
+      },
+      "related": {
+        "type": "array",
+        "reference": "page"
+      },
+      "sources": {
+        "type": "array",
+        "reference": "source"
+      },
+      "confidence": {
+        "type": "string",
+        "enum": "confidence"
+      },
+      "evidence_scope": {
+        "type": "string",
+        "enum": "evidence_scope"
+      },
+      "updated": {
+        "type": "date"
+      },
+      "prerequisites": {
+        "type": "array",
+        "reference": "page"
+      }
+    }
+  },
+  "source": {
+    "required": [
+      "id",
+      "title",
+      "category",
+      "url",
+      "version",
+      "version_kind",
+      "retrieved_at",
+      "read_form",
+      "read_locator",
+      "topic"
+    ],
+    "optional": [
+      "requires_external_verification",
+      "excerpt_sha256"
+    ],
+    "rules": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "category": {
+        "type": "string",
+        "enum": "source_category"
+      },
+      "version_kind": {
+        "type": "string",
+        "enum": "version_kind"
+      },
+      "read_form": {
+        "type": "array",
+        "enum": "read_form"
+      },
+      "topic": {
+        "type": "string",
+        "vocabulary": "source_topics"
+      },
+      "retrieved_at": {
+        "type": "date"
+      },
+      "requires_external_verification": {
+        "type": "boolean"
+      },
+      "excerpt_sha256": {
+        "type": "string",
+        "null": true
+      }
+    }
+  }
+}

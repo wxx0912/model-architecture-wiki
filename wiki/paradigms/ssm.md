@@ -1,13 +1,32 @@
 ---
-id: paradigm-ssm
-title: Selective State Space Model
-type: paradigm
-tags: [ssm, mamba, state-update, quantization]
-related: [paradigm-linear-attention, component-residual-mhc, check-calibration-axes]
-sources: [paper-mamba, paper-mamba2, repo-mamba]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-ssm",
+  "title": "Selective State Space Model",
+  "type": "paradigm",
+  "tags": [
+    "ssm",
+    "mamba",
+    "state-update",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-linear-attention",
+    "component-residual-mhc",
+    "check-calibration-axes"
+  ],
+  "sources": [
+    "paper-mamba",
+    "paper-mamba2",
+    "repo-mamba"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "state space model",
+    "状态空间模型"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Selective State Space Model（SSM）
@@ -41,4 +60,3 @@ SSM 用状态空间递推建模序列。Mamba 通过输入相关的选择性参�
 ## 来源与证据
 
 Mamba、Mamba-2 论文及官方实现支持选择性状态空间和 SSD 的结构描述；不同推理后端的融合实现需单独验证。
-

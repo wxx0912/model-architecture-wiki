@@ -1,13 +1,29 @@
 ---
-id: component-residual-mhc
-title: Residual, Hyper-Connections and mHC
-type: component
-tags: [residual, mhc, quantization]
-related: [paradigm-ar, paradigm-ssm]
-sources: [paper-mhc, repo-tile-kernels]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-residual-mhc",
+  "title": "Residual, Hyper-Connections and mHC",
+  "type": "component",
+  "tags": [
+    "residual",
+    "mhc",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-ar",
+    "paradigm-ssm"
+  ],
+  "sources": [
+    "paper-mhc",
+    "repo-tile-kernels"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "manifold-constrained hyper-connections",
+    "hyper-connections"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Residual、Hyper-Connections 与 mHC

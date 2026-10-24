@@ -1,13 +1,30 @@
 ---
-id: component-diffusion-timestep
-title: Diffusion Time/Noise and Discrete Mask State
-type: component
-tags: [timestep, diffusion, dit, dllm, mask-state, calibration]
-related: [paradigm-dit, paradigm-dllm]
-sources: [paper-dit, paper-llada, repo-dit]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-diffusion-timestep",
+  "title": "Diffusion Time/Noise and Discrete Mask State",
+  "type": "component",
+  "tags": [
+    "timestep",
+    "diffusion",
+    "dit",
+    "dllm",
+    "mask-state",
+    "calibration"
+  ],
+  "related": [
+    "paradigm-dit",
+    "paradigm-dllm"
+  ],
+  "sources": [
+    "paper-dit",
+    "paper-llada",
+    "repo-dit"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # Diffusion Timestep 与条件注入

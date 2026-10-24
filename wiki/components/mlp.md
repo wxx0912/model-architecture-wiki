@@ -1,13 +1,29 @@
 ---
-id: component-mlp
-title: MLP and Gated FFN
-type: component
-tags: [mlp, swiglu, geglu, quantization]
-related: [paradigm-ar, paradigm-moe, component-attention]
-sources: [paper-transformer, paper-deepseek-v2, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-mlp",
+  "title": "MLP and Gated FFN",
+  "type": "component",
+  "tags": [
+    "mlp",
+    "swiglu",
+    "geglu",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-ar",
+    "paradigm-moe",
+    "component-attention"
+  ],
+  "sources": [
+    "paper-transformer",
+    "paper-deepseek-v2",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # MLP 与 Gated FFN

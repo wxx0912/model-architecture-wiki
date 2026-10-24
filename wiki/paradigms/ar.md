@@ -1,13 +1,31 @@
 ---
-id: paradigm-ar
-title: Autoregressive Transformer
-type: paradigm
-tags: [ar, attention, kv-cache, rope, quantization]
-related: [component-attention, component-kv-cache, component-normalization, component-position-encoding, check-quantization-preflight]
-sources: [paper-transformer, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-ar",
+  "title": "Autoregressive Transformer",
+  "type": "paradigm",
+  "tags": [
+    "ar",
+    "attention",
+    "kv-cache",
+    "rope",
+    "quantization"
+  ],
+  "related": [
+    "component-attention",
+    "component-kv-cache",
+    "component-normalization",
+    "component-position-encoding",
+    "check-quantization-preflight"
+  ],
+  "sources": [
+    "paper-transformer",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # Autoregressive Transformer
@@ -41,4 +59,3 @@ AR 模型按条件概率逐 token 生成。典型 decoder-only Transformer 由 t
 ## 来源与证据
 
 Transformer 论文描述了 decoder self-attention 和因果建模；具体 AR 模型的模块名、融合方式和 cache 契约必须以目标实现为准。
-

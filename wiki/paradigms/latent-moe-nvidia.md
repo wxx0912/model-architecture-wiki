@@ -1,13 +1,28 @@
 ---
-id: paradigm-latent-moe-nvidia
-title: NVIDIA LatentMoE
-type: paradigm
-tags: [latent-moe, moe, routing, quantization]
-related: [paradigm-latent-moe, paradigm-moe, component-mlp, component-router-expert]
-sources: [paper-latentmoe]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-latent-moe-nvidia",
+  "title": "NVIDIA LatentMoE",
+  "type": "paradigm",
+  "tags": [
+    "latent-moe",
+    "moe",
+    "routing",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-latent-moe",
+    "paradigm-moe",
+    "component-mlp",
+    "component-router-expert"
+  ],
+  "sources": [
+    "paper-latentmoe"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # NVIDIA LatentMoE
@@ -35,4 +50,3 @@ validated_at: 2026-10-22
 ## 来源与证据
 
 本页对应 Elango 等人的 NVIDIA/研究 LatentMoE 论文。当前不把论文作为 NVIDIA 独立实现或后端支持的证明；部署仍需目标模型代码和 kernel 证据。
-

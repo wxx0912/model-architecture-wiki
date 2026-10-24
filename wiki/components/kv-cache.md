@@ -1,13 +1,33 @@
 ---
-id: component-kv-cache
-title: KV Cache
-type: component
-tags: [kv-cache, attention, gqa, mla, quantization]
-related: [component-attention, paradigm-ar, paradigm-linear-attention]
-sources: [paper-transformer, paper-deepseek-v2, paper-kimi-linear]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-kv-cache",
+  "title": "KV Cache",
+  "type": "component",
+  "tags": [
+    "kv-cache",
+    "attention",
+    "gqa",
+    "mla",
+    "quantization"
+  ],
+  "related": [
+    "component-attention",
+    "paradigm-ar",
+    "paradigm-linear-attention"
+  ],
+  "sources": [
+    "paper-transformer",
+    "paper-deepseek-v2",
+    "paper-kimi-linear"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "key value cache",
+    "键值缓存"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # KV Cache

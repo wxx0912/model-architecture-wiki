@@ -1,13 +1,42 @@
 ---
-id: component-attention
-title: "Attention: MHA, GQA and MLA"
-type: component
-tags: [attention, mha, gqa, mla, rope, kv-cache]
-related: [paradigm-ar, paradigm-moe, component-kv-cache, model-deepseek]
-sources: [paper-transformer, paper-deepseek-v2, paper-deepseek-v3, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-attention",
+  "title": "Attention: MHA, GQA and MLA",
+  "type": "component",
+  "tags": [
+    "attention",
+    "mha",
+    "gqa",
+    "mla",
+    "rope",
+    "kv-cache"
+  ],
+  "related": [
+    "paradigm-ar",
+    "paradigm-moe",
+    "component-kv-cache",
+    "model-deepseek"
+  ],
+  "sources": [
+    "paper-transformer",
+    "paper-deepseek-v2",
+    "paper-deepseek-v3",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "注意力",
+    "self-attention",
+    "multi-head attention",
+    "多头注意力",
+    "grouped-query attention",
+    "分组查询注意力",
+    "multi-head latent attention",
+    "多头潜在注意力"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Attention：MHA、GQA 与 MLA

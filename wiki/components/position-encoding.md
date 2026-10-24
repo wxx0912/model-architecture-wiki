@@ -1,13 +1,31 @@
 ---
-id: component-position-encoding
-title: RoPE and Position Encoding
-type: component
-tags: [rope, attention, quantization]
-related: [component-attention, paradigm-ar, paradigm-dit, paradigm-dllm]
-sources: [paper-rope, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-position-encoding",
+  "title": "RoPE and Position Encoding",
+  "type": "component",
+  "tags": [
+    "rope",
+    "attention",
+    "quantization"
+  ],
+  "related": [
+    "component-attention",
+    "paradigm-ar",
+    "paradigm-dit",
+    "paradigm-dllm"
+  ],
+  "sources": [
+    "paper-rope",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "rotary position embedding",
+    "旋转位置编码"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # RoPE 与位置编码
@@ -35,4 +53,3 @@ Rotary Position Embedding（RoPE）把位置相关的旋转施加到 query/key �
 1. 从配置和源码确认 RoPE 类型、旋转维度、索引和 cache 边界。
 2. 在短/长位置比较旋转前后 Q/K、logits 和 cache 读取结果。
 3. 核对导出格式和 kernel 对 rope scaling、低比特 Q/K 的支持。
-

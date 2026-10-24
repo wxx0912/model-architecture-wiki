@@ -1,13 +1,29 @@
 ---
-id: check-deployment-contract
-title: Quantization Deployment Contract
-type: check
-tags: [quantization, deployment, packing, calibration]
-related: [check-quantization-preflight, component-kv-cache, component-router-expert]
-sources: [repo-huggingface-transformers, repo-deepseek-v3, repo-mamba]
-confidence: inferred
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "check-deployment-contract",
+  "title": "Quantization Deployment Contract",
+  "type": "check",
+  "tags": [
+    "quantization",
+    "deployment",
+    "packing",
+    "calibration"
+  ],
+  "related": [
+    "check-quantization-preflight",
+    "component-kv-cache",
+    "component-router-expert"
+  ],
+  "sources": [
+    "repo-huggingface-transformers",
+    "repo-deepseek-v3",
+    "repo-mamba"
+  ],
+  "confidence": "inferred",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # 量化部署契约
@@ -32,4 +48,3 @@ validated_at: 2026-10-22
 5. 端到端质量、内存、延迟、吞吐和失败日志归档。
 
 部署契约通过只说明“可运行且接口一致”，不能替代精度验收。
-

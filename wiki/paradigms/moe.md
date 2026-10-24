@@ -1,13 +1,36 @@
 ---
-id: paradigm-moe
-title: Sparse Mixture of Experts
-type: paradigm
-tags: [moe, routing, mlp, quantization]
-related: [component-mlp, component-router-expert, paradigm-latent-moe, check-quantization-preflight]
-sources: [paper-switch-transformer, paper-mixtral, paper-deepseek-v2, paper-deepseek-v3, repo-deepseek-v3]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-moe",
+  "title": "Sparse Mixture of Experts",
+  "type": "paradigm",
+  "tags": [
+    "moe",
+    "routing",
+    "mlp",
+    "quantization"
+  ],
+  "related": [
+    "component-mlp",
+    "component-router-expert",
+    "paradigm-latent-moe",
+    "check-quantization-preflight"
+  ],
+  "sources": [
+    "paper-switch-transformer",
+    "paper-mixtral",
+    "paper-deepseek-v2",
+    "paper-deepseek-v3",
+    "repo-deepseek-v3"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "mixture of experts",
+    "mixture-of-experts",
+    "混合专家"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Sparse Mixture of Experts（MoE）
@@ -41,4 +64,3 @@ validated_at: 2026-10-22
 ## 来源与证据
 
 Switch Transformer、Mixtral 及 DeepSeek 技术报告支持稀疏路由的通用结构；具体专家布局和 kernel 以目标实现为准。
-

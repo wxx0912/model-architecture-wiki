@@ -1,13 +1,32 @@
 ---
-id: component-attention-residuals
-title: Attention Residuals (AttnRes)
-type: component
-tags: [attnres, residual, attention, quantization]
-related: [component-residual-mhc, paradigm-ar, check-quantization-preflight]
-sources: [paper-attnres, repo-attention-residuals]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-attention-residuals",
+  "title": "Attention Residuals (AttnRes)",
+  "type": "component",
+  "tags": [
+    "attnres",
+    "residual",
+    "attention",
+    "quantization"
+  ],
+  "related": [
+    "component-residual-mhc",
+    "paradigm-ar",
+    "check-quantization-preflight"
+  ],
+  "sources": [
+    "paper-attnres",
+    "repo-attention-residuals"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "attention residuals",
+    "attention residual",
+    "注意力残差"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Attention Residuals（AttnRes）
@@ -35,4 +54,3 @@ Attention Residuals 用沿网络深度方向的、输入依赖的 softmax attent
 ## 来源与证据
 
 Kimi Team 的论文和官方资料支持 AttnRes 的机制；官方仓库未提供完整模型运行实现，因此目标 checkpoint 仍需源码确认。
-

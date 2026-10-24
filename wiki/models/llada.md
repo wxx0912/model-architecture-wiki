@@ -1,13 +1,35 @@
 ---
-id: model-llada
-title: LLaDA
-type: model
-tags: [dllm, diffusion, attention, calibration, quantization]
-related: [paradigm-dllm, paradigm-ar, component-diffusion-timestep, component-attention, component-embedding-lm-head]
-sources: [paper-llada, repo-llada]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "model-llada",
+  "title": "LLaDA",
+  "type": "model",
+  "tags": [
+    "dllm",
+    "diffusion",
+    "attention",
+    "calibration",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-dllm",
+    "paradigm-ar",
+    "component-diffusion-timestep",
+    "component-attention",
+    "component-embedding-lm-head"
+  ],
+  "sources": [
+    "paper-llada",
+    "repo-llada"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "diffusion language model",
+    "diffusion lm",
+    "扩散语言模型"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # LLaDA
@@ -41,4 +63,3 @@ LLaDA 是基于 Transformer 的 masked diffusion language model。它使用双�
 ## 来源与证据
 
 LLaDA 论文和官方仓库支持本页的训练与生成概述；实际采样行为以运行时版本和参数为准。
-

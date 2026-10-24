@@ -1,20 +1,34 @@
 ---
-id: paradigm-multihead-latent-moe
-title: Multi-Head LatentMoE
-type: paradigm
-tags: [latent-moe, moe, routing, quantization]
-related: [paradigm-latent-moe, paradigm-latent-moe-nvidia, paradigm-moe]
-sources: [paper-multihead-latentmoe]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-multihead-latent-moe",
+  "title": "Multi-Head LatentMoE",
+  "type": "paradigm",
+  "tags": [
+    "latent-moe",
+    "moe",
+    "routing",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-latent-moe",
+    "paradigm-latent-moe-nvidia",
+    "paradigm-moe"
+  ],
+  "sources": [
+    "paper-multihead-latentmoe"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # Multi-Head LatentMoE
 
 ## 结构概述
 
-Multi-Head LatentMoE 是另一种以 latent 表示和 head parallel 为核心的研究方案，不能与 NVIDIA LatentMoE 或 Kimi 的 Stable LatentMoE 视为同义词。其通信和 head 组织方式是结构分析的重点。
+Multi-Head LatentMoE 是另一种以 latent 表示和 head parallel 为核心的研究方案，不能与 NVIDIA 的 LatentMoE 视为同义词。其通信和 head 组织方式是结构分析的重点。
 
 ## 量化关联
 
@@ -29,4 +43,3 @@ Agent 需要先确认 latent head 数、投影/恢复路径、专家分配和通
 ## 来源与证据
 
 本页仅使用 Multi-Head LatentMoE 论文作为结构来源，不复用其他 LatentMoE 变体的参数或量化规则。
-

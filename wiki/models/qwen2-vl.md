@@ -1,13 +1,32 @@
 ---
-id: model-qwen2-vl
-title: Qwen2-VL
-type: model
-tags: [multimodal, attention, rope, embedding, quantization]
-related: [paradigm-multimodal, paradigm-ar, component-multimodal-connector, component-position-encoding, component-embedding-lm-head]
-sources: [paper-qwen2-vl, repo-qwen2-vl, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "model-qwen2-vl",
+  "title": "Qwen2-VL",
+  "type": "model",
+  "tags": [
+    "multimodal",
+    "attention",
+    "rope",
+    "embedding",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-multimodal",
+    "paradigm-ar",
+    "component-multimodal-connector",
+    "component-position-encoding",
+    "component-embedding-lm-head"
+  ],
+  "sources": [
+    "paper-qwen2-vl",
+    "repo-qwen2-vl",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # Qwen2-VL
@@ -40,5 +59,4 @@ Qwen2-VL 是视觉语言模型案例。其视觉输入经过动态分辨率处�
 
 ## 来源与证据
 
-Qwen2-VL 技术报告与官方仓库支持本页的结构概述；processor 和模型实现版本需随目标 checkpoint 明确。
-
+本页结构概述以 Qwen2-VL 技术报告为主要依据；官方仓库 `QwenLM/Qwen2-VL` 已重定向且不含建模代码，只提供输入端预处理，不作为结构证据。processor 和模型实现版本需随目标 checkpoint 明确。

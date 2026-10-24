@@ -1,0 +1,126 @@
+{
+  "page_types": [
+    {
+      "name": "paradigm",
+      "label": "范式"
+    },
+    {
+      "name": "component",
+      "label": "组件"
+    },
+    {
+      "name": "model",
+      "label": "模型"
+    },
+    {
+      "name": "check",
+      "label": "核查"
+    }
+  ],
+  "tags": [
+    "ar",
+    "dit",
+    "dllm",
+    "diffusion",
+    "multimodal",
+    "attention",
+    "mha",
+    "gqa",
+    "mla",
+    "linear-attention",
+    "ssm",
+    "mamba",
+    "moe",
+    "latent-moe",
+    "mlp",
+    "swiglu",
+    "geglu",
+    "residual",
+    "mhc",
+    "kv-cache",
+    "rope",
+    "normalization",
+    "rmsnorm",
+    "embedding",
+    "lm-head",
+    "multimodal-connector",
+    "gdn",
+    "attnres",
+    "deployment",
+    "packing",
+    "quantization-preflight",
+    "timestep",
+    "mask-state",
+    "calibration",
+    "quantization",
+    "routing",
+    "state-update"
+  ],
+  "alias_expansions": {
+    "attention": [
+      "component-attention"
+    ],
+    "mha": [
+      "component-attention"
+    ],
+    "gqa": [
+      "component-attention"
+    ],
+    "mla": [
+      "component-attention",
+      "model-deepseek"
+    ],
+    "linear-attention": [
+      "paradigm-linear-attention",
+      "model-kimi-linear"
+    ],
+    "ssm": [
+      "paradigm-ssm",
+      "model-mamba2"
+    ],
+    "moe": [
+      "paradigm-moe",
+      "component-router-expert"
+    ],
+    "dllm": [
+      "paradigm-dllm",
+      "model-llada"
+    ],
+    "dit": [
+      "paradigm-dit"
+    ],
+    "mhc": [
+      "component-residual-mhc"
+    ],
+    "kv-cache": [
+      "component-kv-cache"
+    ],
+    "rmsnorm": [
+      "component-normalization"
+    ],
+    "rope": [
+      "component-position-encoding"
+    ],
+    "attnres": [
+      "component-attention-residuals"
+    ]
+  },
+  "source_topics": [
+    {
+      "name": "core",
+      "label": "基础与主干"
+    },
+    {
+      "name": "architectures",
+      "label": "架构与模型"
+    },
+    {
+      "name": "implementations",
+      "label": "官方实现与文档"
+    },
+    {
+      "name": "organization",
+      "label": "组织参考"
+    }
+  ]
+}

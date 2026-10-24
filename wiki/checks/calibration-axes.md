@@ -1,13 +1,37 @@
 ---
-id: check-calibration-axes
-title: Calibration Axes by Architecture
-type: check
-tags: [calibration, quantization, timestep, routing, state-update]
-related: [check-quantization-preflight, paradigm-dit, paradigm-dllm, paradigm-moe, paradigm-ssm]
-sources: [paper-dit, paper-llada, paper-switch-transformer, paper-mamba2]
-confidence: inferred
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "check-calibration-axes",
+  "title": "Calibration Axes by Architecture",
+  "type": "check",
+  "tags": [
+    "calibration",
+    "quantization",
+    "timestep",
+    "routing",
+    "state-update"
+  ],
+  "related": [
+    "check-quantization-preflight",
+    "paradigm-ar",
+    "paradigm-dit",
+    "paradigm-dllm",
+    "paradigm-moe",
+    "paradigm-multimodal",
+    "paradigm-ssm"
+  ],
+  "sources": [
+    "paper-dit",
+    "paper-llada",
+    "paper-qwen2-vl",
+    "paper-switch-transformer",
+    "paper-transformer",
+    "paper-mamba2"
+  ],
+  "confidence": "inferred",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # 按架构组织校准轴
@@ -34,4 +58,3 @@ validated_at: 2026-10-22
 ## 验收
 
 校准集通过覆盖审计后，再进入算法/配置搜索。搜索结果必须回指使用过的轴和样本版本，以便复现和比较。
-

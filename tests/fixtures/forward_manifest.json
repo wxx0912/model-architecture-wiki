@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "source_revision": "fixture-revision",
+    "device": "fixture-cpu",
+    "dtype": "bfloat16",
+    "input_signature": "batch=1;sequence_length=8;mode=prefill"
+  },
+  "observations": [
+    {"name": "model.layers.0.self_attn.q_proj", "shape": [1, 8, 4096], "dtype": "bfloat16", "layout": "BTH"},
+    {"name": "model.layers.0.self_attn.attention_output", "shape": [1, 8, 4096], "dtype": "bfloat16", "layout": "BTH"},
+    {"name": "lm_head.logits", "shape": [1, 8, 151936], "dtype": "bfloat16", "layout": "BTV"}
+  ]
+}

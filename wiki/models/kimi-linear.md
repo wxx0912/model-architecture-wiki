@@ -1,13 +1,34 @@
 ---
-id: model-kimi-linear
-title: Kimi Linear
-type: model
-tags: [linear-attention, state-update, gdn, mla, quantization]
-related: [paradigm-linear-attention, paradigm-ar, paradigm-ssm, component-kv-cache]
-sources: [paper-kimi-linear, paper-gdn, repo-kimi-linear]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "model-kimi-linear",
+  "title": "Kimi Linear",
+  "type": "model",
+  "tags": [
+    "linear-attention",
+    "state-update",
+    "gdn",
+    "mla",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-linear-attention",
+    "paradigm-ar",
+    "paradigm-ssm",
+    "component-kv-cache"
+  ],
+  "sources": [
+    "paper-kimi-linear",
+    "paper-gdn",
+    "repo-kimi-linear"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "线性注意力",
+    "linear attention"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Kimi Linear
@@ -41,4 +62,3 @@ KDA 将输入投影成 query/key/value 和门控项，以 delta-rule 风格递�
 ## 来源与证据
 
 Kimi Linear 论文与官方仓库说明其混合线性注意力设计；目标 checkpoint 和后端仍需独立核对。
-

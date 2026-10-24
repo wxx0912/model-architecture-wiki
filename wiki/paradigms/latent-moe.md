@@ -1,20 +1,36 @@
 ---
-id: paradigm-latent-moe
-title: LatentMoE Terminology and Variants
-type: paradigm
-tags: [latent-moe, moe, routing, quantization]
-related: [paradigm-moe, paradigm-latent-moe-nvidia, paradigm-multihead-latent-moe, component-mlp]
-sources: [paper-latentmoe, paper-multihead-latentmoe]
-confidence: verified
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-latent-moe",
+  "title": "LatentMoE Terminology and Variants",
+  "type": "paradigm",
+  "tags": [
+    "latent-moe",
+    "moe",
+    "routing",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-moe",
+    "paradigm-latent-moe-nvidia",
+    "paradigm-multihead-latent-moe",
+    "component-mlp"
+  ],
+  "sources": [
+    "paper-latentmoe",
+    "paper-multihead-latentmoe"
+  ],
+  "confidence": "inferred",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
-# Latent-space Mixture of Experts
+# LatentMoE Terminology and Variants（术语与变体）
 
 ## 结构概述
 
-“LatentMoE”不是唯一、统一的架构名称。至少存在 NVIDIA/研究论文中的 LatentMoE、Multi-Head LatentMoE，以及模型系列自定义的 Stable LatentMoE。Agent 命中该术语时必须同时显示组织、论文/模型和版本，再选择具体页面。
+“LatentMoE”不是唯一、统一的架构名称。本库已登记两种来源明确的变体：NVIDIA/研究论文的 LatentMoE（`paradigm-latent-moe-nvidia`）与 Multi-Head LatentMoE（`paradigm-multihead-latent-moe`）。Agent 命中该术语时必须同时显示组织、论文/模型和版本，再选择具体页面；未登记来源的变体名不得据术语推断结构。
 
 ## 结构与数据流
 
@@ -39,4 +55,3 @@ validated_at: 2026-10-22
 ## 来源与证据
 
 本页只确认术语歧义和变体分流；具体结构与量化边界应使用下列变体页面及其对应来源，不应把本页当作单一实现定义。
-

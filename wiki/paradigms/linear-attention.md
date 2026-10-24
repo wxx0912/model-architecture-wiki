@@ -1,13 +1,33 @@
 ---
-id: paradigm-linear-attention
-title: Linear Attention and Gated State Updates
-type: paradigm
-tags: [linear-attention, state-update, gdn, calibration, quantization]
-related: [paradigm-ssm, component-attention, component-kv-cache]
-sources: [paper-gdn, paper-kimi-linear, repo-kimi-linear]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-linear-attention",
+  "title": "Linear Attention and Gated State Updates",
+  "type": "paradigm",
+  "tags": [
+    "linear-attention",
+    "state-update",
+    "gdn",
+    "calibration",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-ssm",
+    "component-attention",
+    "component-kv-cache"
+  ],
+  "sources": [
+    "paper-gdn",
+    "paper-kimi-linear",
+    "repo-kimi-linear"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "线性注意力",
+    "linear attention"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Linear Attention 与门控状态更新
@@ -40,5 +60,4 @@ validated_at: 2026-10-22
 
 ## 来源与证据
 
-Gated DeltaNet、Kimi Linear 论文和官方仓库支持门控状态更新及混合层的结构描述；具体 state layout 必须核对实现。
-
+Gated DeltaNet、Kimi Linear 论文支持门控状态更新及混合层的结构描述；Kimi Linear 官方仓库不含代码、不是实现依据，具体 state layout 必须核对实现。

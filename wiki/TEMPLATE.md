@@ -1,16 +1,21 @@
----
-id: <type>-<stable-name>
-title: <page title>
-type: paradigm | component | model | check
-tags: [controlled-tag, another-tag]
-related: [page-id]
-sources: [source-id]
-confidence: verified | source-reported | inferred | experimental
-evidence_scope: source-reported | inferred | experimental | mixed
-validated_at: YYYY-MM-DD
----
+# 页面模板
 
-# <Page title>
+以下头部以真实字段替换后放在页面最开始。`related`、`prerequisites` 只填写已存在的页面 ID，`sources` 必须登记对应来源页；`confidence` 与 `evidence_scope` 取值见 `CONVENTIONS.md` 第 2.5 节。
+
+```json
+{
+  "id": "<type>-<stable-name>",
+  "title": "页面标题",
+  "type": "paradigm",
+  "tags": ["controlled-tag"],
+  "aliases": ["中文别名"],
+  "related": ["other-page"],
+  "sources": ["paper-name"],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "updated": "2026-10-23"
+}
+```
 
 ## 结构概述
 
@@ -26,7 +31,7 @@ validated_at: YYYY-MM-DD
 
 ## 量化关联
 
-分开记录来源事实、结构推断和需要实验验证的假设；说明可能影响的校准轴、误差路径和后端约束。
+分开记录来源事实、配置确认（`config-confirmed`）、结构推断和需要实验验证的假设；说明可能影响的校准轴、误差路径和后端约束。
 
 ## Agent 检查
 
@@ -35,4 +40,8 @@ validated_at: YYYY-MM-DD
 ## 来源与证据
 
 说明 sources 中的一手资料支持哪些事实。记录适用模型版本、论文章节或代码路径；目标模型仍需独立核验。
+
+## 结构档案（可选）
+
+代表性结构族登记在 `data/architecture-profiles.json`。档案只保存结构特征和证据入口；`checkpoint`、`model_type`、`architectures`、代码 revision 未锁定时必须写 `unknown`。目标模型的完整 preflight 应由 `scripts/preflight.py` 生成并补齐运行时证据。
 

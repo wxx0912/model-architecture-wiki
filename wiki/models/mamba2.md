@@ -1,13 +1,30 @@
 ---
-id: model-mamba2
-title: Mamba-2
-type: model
-tags: [ssm, mamba, state-update, quantization]
-related: [paradigm-ssm, paradigm-linear-attention]
-sources: [paper-mamba2, repo-mamba]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "model-mamba2",
+  "title": "Mamba-2",
+  "type": "model",
+  "tags": [
+    "ssm",
+    "mamba",
+    "state-update",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-ssm",
+    "paradigm-linear-attention"
+  ],
+  "sources": [
+    "paper-mamba2",
+    "repo-mamba"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "state space model",
+    "状态空间模型"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Mamba-2
@@ -40,4 +57,3 @@ Mamba-2 是选择性状态空间架构，论文以 State Space Duality（SSD）�
 ## 来源与证据
 
 Mamba-2 论文及官方 Mamba 仓库提供 SSD 和实现参考；不同 checkpoint 的层参数与后端融合需核验。
-

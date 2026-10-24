@@ -1,13 +1,38 @@
 ---
-id: model-deepseek
-title: DeepSeek-V2 / DeepSeek-V3
-type: model
-tags: [ar, attention, mla, moe, routing, quantization]
-related: [paradigm-ar, paradigm-moe, component-attention, component-router-expert, component-mlp, component-kv-cache]
-sources: [paper-deepseek-v2, paper-deepseek-v3, repo-deepseek-v3, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "model-deepseek",
+  "title": "DeepSeek-V2 / DeepSeek-V3",
+  "type": "model",
+  "tags": [
+    "ar",
+    "attention",
+    "mla",
+    "moe",
+    "routing",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-ar",
+    "paradigm-moe",
+    "component-attention",
+    "component-router-expert",
+    "component-mlp",
+    "component-kv-cache"
+  ],
+  "sources": [
+    "paper-deepseek-v2",
+    "paper-deepseek-v3",
+    "repo-deepseek-v3",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "multi-head latent attention",
+    "多头潜在注意力"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # DeepSeek-V2 / DeepSeek-V3
@@ -41,4 +66,3 @@ DeepSeek-V2/V3 是 decoder-only autoregressive 模型，代表性结构包括 Mu
 ## 来源与证据
 
 V2/V3 技术报告提供系列架构信息；仓库或具体 checkpoint 配置提供实现事实。页面不代表每个变体均包含相同模块。
-

@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "id": "qwen2-decoder-family",
+      "knowledge_page": "paradigm-ar",
+      "model_name": "Qwen2 decoder-only family",
+      "model_type_hints": ["qwen2"],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/huggingface/transformers",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "MHA/GQA; resolve from q_heads and kv_heads",
+        "moe_layout": "unknown; verify the selected checkpoint",
+        "module_dependencies": ["token embedding", "decoder blocks", "causal attention", "gated MLP", "final norm", "LM head"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["RoPE", "KV cache", "fused QKV/MLP implementation unknown"]
+      },
+      "features": ["autoregressive", "attention"],
+      "evidence": [
+        {"feature": "autoregressive", "classification": "source-reported", "source": "paper-transformer", "locator": "decoder-only causal self-attention and next-token path"},
+        {"feature": "attention", "classification": "source-confirmed", "source": "repo-huggingface-transformers", "locator": "Qwen2 model implementation; resolve target file and commit"}
+      ]
+    },
+    {
+      "id": "attention-variants-reference",
+      "knowledge_page": "component-attention",
+      "model_name": "MHA / GQA / MLA attention variants",
+      "model_type_hints": [],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/huggingface/transformers",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "MHA, GQA or MLA; resolve from target config and implementation",
+        "moe_layout": "unknown; verify the selected checkpoint",
+        "module_dependencies": ["Q/K/V projections", "position encoding", "attention kernel", "output projection", "cache path"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["GQA shared KV heads", "MLA latent compression/cache"]
+      },
+      "features": ["mha", "gqa", "mla"],
+      "evidence": [
+        {"feature": "mha", "classification": "source-reported", "source": "paper-transformer", "locator": "multi-head self-attention formulation"},
+        {"feature": "gqa", "classification": "source-confirmed", "source": "repo-huggingface-transformers", "locator": "GQA implementation; resolve target model file and commit"},
+        {"feature": "mla", "classification": "source-reported", "source": "paper-deepseek-v2", "locator": "Multi-head Latent Attention section"}
+      ]
+    },
+    {
+      "id": "mixtral-8x7b-family",
+      "knowledge_page": "paradigm-moe",
+      "model_name": "Mixtral 8x7B family",
+      "model_type_hints": ["mixtral"],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/huggingface/transformers",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "grouped-query attention; verify exact head layout from checkpoint config",
+        "moe_layout": "sparse MoE; expert count and top-k vary by checkpoint",
+        "module_dependencies": ["causal attention", "router", "expert MLPs", "dispatch/combine", "LM head"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["token-to-expert dispatch", "expert grouped GEMM"]
+      },
+      "features": ["autoregressive", "gqa", "moe"],
+      "evidence": [
+        {"feature": "autoregressive", "classification": "source-reported", "source": "paper-mixtral", "locator": "model architecture description"},
+        {"feature": "gqa", "classification": "source-reported", "source": "paper-mixtral", "locator": "grouped-query attention description"},
+        {"feature": "moe", "classification": "source-reported", "source": "paper-mixtral", "locator": "sparse expert architecture and top-k routing description"}
+      ]
+    },
+    {
+      "id": "deepseek-v3-family",
+      "knowledge_page": "model-deepseek",
+      "model_name": "DeepSeek-V3 family",
+      "model_type_hints": ["deepseek_v3"],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/deepseek-ai/DeepSeek-V3",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "MLA; exact layer layout unknown",
+        "moe_layout": "DeepSeekMoE; expert counts and placement unknown",
+        "module_dependencies": ["embedding", "MLA attention", "router", "routed/shared experts", "LM head"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["latent KV/cache path", "MTP presence and export path unknown"]
+      },
+      "features": ["autoregressive", "mla", "moe"],
+      "evidence": [
+        {"feature": "autoregressive", "classification": "source-reported", "source": "paper-deepseek-v3", "locator": "architecture description; bind to the selected report revision"},
+        {"feature": "mla", "classification": "source-reported", "source": "paper-deepseek-v3", "locator": "Multi-head Latent Attention section"},
+        {"feature": "moe", "classification": "source-reported", "source": "paper-deepseek-v3", "locator": "DeepSeekMoE architecture section"}
+      ]
+    },
+    {
+      "id": "dit-xl-2-reference",
+      "knowledge_page": "paradigm-dit",
+      "model_name": "DiT-XL/2 reference implementation",
+      "model_type_hints": ["dit"],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/facebookresearch/DiT",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "self-attention; exact block layout unknown",
+        "moe_layout": "unknown; verify the selected checkpoint",
+        "module_dependencies": ["patch/token embedding", "timestep conditioning", "attention", "MLP", "output projection"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["adaptive normalization", "VAE/scheduler outside the transformer"]
+      },
+      "features": ["diffusion-timestep", "attention"],
+      "evidence": [
+        {"feature": "diffusion-timestep", "classification": "source-reported", "source": "paper-dit", "locator": "DiT blocks and adaptive LayerNorm conditioning"},
+        {"feature": "attention", "classification": "source-confirmed", "source": "repo-dit", "locator": "reference model implementation; resolve file and commit for target checkout"}
+      ]
+    },
+    {
+      "id": "llada-family",
+      "knowledge_page": "model-llada",
+      "model_name": "LLaDA family",
+      "model_type_hints": ["llada"],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/ML-GSAI/LLaDA",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "bidirectional/mask-controlled attention; exact layout unknown",
+        "moe_layout": "unknown; verify the selected checkpoint",
+        "module_dependencies": ["embedding", "Transformer blocks", "mask state", "sampler", "LM head"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["mask/remasking trajectory", "sampler-specific update order"]
+      },
+      "features": ["masked-diffusion", "autoregressive-transformer-backbone"],
+      "evidence": [
+        {"feature": "masked-diffusion", "classification": "source-reported", "source": "paper-llada", "locator": "masked diffusion language modeling and sampling sections"},
+        {"feature": "autoregressive-transformer-backbone", "classification": "source-confirmed", "source": "repo-llada", "locator": "model implementation; resolve file and commit for target checkout"}
+      ]
+    },
+    {
+      "id": "qwen2-vl-family",
+      "knowledge_page": "model-qwen2-vl",
+      "model_name": "Qwen2-VL family",
+      "model_type_hints": ["qwen2_vl"],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/QwenLM/Qwen2-VL",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "language attention plus multimodal position handling; exact layout unknown",
+        "moe_layout": "unknown; verify the selected checkpoint",
+        "module_dependencies": ["vision encoder", "visual merger/connector", "processor", "language backbone", "LM head"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["dynamic visual token count", "M-RoPE position ids", "video temporal path"]
+      },
+      "features": ["autoregressive", "multimodal-vision", "mrope"],
+      "evidence": [
+        {"feature": "autoregressive", "classification": "source-reported", "source": "paper-qwen2-vl", "locator": "language model generation path"},
+        {"feature": "multimodal-vision", "classification": "source-reported", "source": "paper-qwen2-vl", "locator": "vision encoder and visual token merger sections"},
+        {"feature": "mrope", "classification": "source-reported", "source": "paper-qwen2-vl", "locator": "multimodal rotary position embedding section"}
+      ]
+    },
+    {
+      "id": "kimi-linear-family",
+      "knowledge_page": "model-kimi-linear",
+      "model_name": "Kimi Linear family",
+      "model_type_hints": ["kimi_linear"],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/MoonshotAI/Kimi-Linear",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "mixed KDA/linear-state and MLA layers; order unknown",
+        "moe_layout": "unknown; verify the selected checkpoint",
+        "module_dependencies": ["linear state update", "state readout", "MLA attention", "short convolution if present"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["state reset/chunk boundary", "MLA cache path"]
+      },
+      "features": ["linear-state", "mla"],
+      "evidence": [
+        {"feature": "linear-state", "classification": "source-reported", "source": "paper-kimi-linear", "locator": "Kimi Delta Attention and hybrid layer sections"},
+        {"feature": "mla", "classification": "source-reported", "source": "paper-kimi-linear", "locator": "hybrid MLA attention path"}
+      ]
+    },
+    {
+      "id": "mamba2-family",
+      "knowledge_page": "model-mamba2",
+      "model_name": "Mamba-2 / SSD family",
+      "model_type_hints": [],
+      "config_signatures": [{"path": "ssm_cfg.layer", "equals": "Mamba2"}],
+      "checkpoint": "unknown",
+      "model_type": "unknown",
+      "architectures": "unknown",
+      "implementation": {
+        "repository": "https://github.com/state-spaces/mamba",
+        "revision": "unknown"
+      },
+      "structure": {
+        "num_hidden_layers": "unknown",
+        "hidden_size": "unknown",
+        "attention_layout": "none; verify whether attention layers are inserted",
+        "moe_layout": "unknown; verify the selected checkpoint",
+        "module_dependencies": ["input projection", "gated branch", "short convolution", "SSD/selective scan", "state readout", "output projection"],
+        "parameter_sharing": "unknown",
+        "special_paths": ["SSM state", "convolution state", "fused scan kernel", "residual accumulation dtype"]
+      },
+      "features": ["linear-state"],
+      "evidence": [
+        {"feature": "linear-state", "classification": "source-reported", "source": "paper-mamba2", "locator": "State Space Duality and SSD block description"}
+      ]
+    }
+  ]
+}

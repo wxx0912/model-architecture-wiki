@@ -1,13 +1,34 @@
 ---
-id: component-router-expert
-title: MoE Router, Dispatch and Expert MLP
-type: component
-tags: [moe, routing, mlp, quantization]
-related: [paradigm-moe, paradigm-latent-moe, component-mlp]
-sources: [paper-switch-transformer, paper-mixtral, paper-deepseek-v2, repo-deepseek-v3]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-router-expert",
+  "title": "MoE Router, Dispatch and Expert MLP",
+  "type": "component",
+  "tags": [
+    "moe",
+    "routing",
+    "mlp",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-moe",
+    "paradigm-latent-moe",
+    "component-mlp"
+  ],
+  "sources": [
+    "paper-switch-transformer",
+    "paper-mixtral",
+    "paper-deepseek-v2",
+    "repo-deepseek-v3"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "mixture of experts",
+    "mixture-of-experts",
+    "混合专家"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # MoE Router、Dispatch 与 Expert MLP
@@ -31,4 +52,3 @@ Router 对 `[N,d_model]` hidden states 产生 `[N,E]` 分数，选出每个 toke
 1. 记录 router 输入/输出、top-k、capacity、token drop 和专家负载。
 2. 保存 token→expert 映射用于量化前后路由一致性比较。
 3. 确认专家权重 key、维度、shared/routed 区分和目标 kernel 支持。
-

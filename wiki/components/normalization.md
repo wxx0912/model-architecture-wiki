@@ -1,13 +1,31 @@
 ---
-id: component-normalization
-title: RMSNorm and Normalization Boundaries
-type: component
-tags: [normalization, rmsnorm, quantization]
-related: [paradigm-ar, paradigm-dit, paradigm-ssm, component-residual-mhc]
-sources: [paper-rmsnorm, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-normalization",
+  "title": "RMSNorm and Normalization Boundaries",
+  "type": "component",
+  "tags": [
+    "normalization",
+    "rmsnorm",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-ar",
+    "paradigm-dit",
+    "paradigm-ssm",
+    "component-residual-mhc"
+  ],
+  "sources": [
+    "paper-rmsnorm",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "root mean square normalization",
+    "均方根归一化"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # RMSNorm 与归一化边界
@@ -35,4 +53,3 @@ RMSNorm 用输入的均方根进行缩放，再乘以可学习权重，省略 La
 1. 读取 norm 类型、eps、参数 dtype、fused kernel 和执行精度。
 2. 记录每个 norm 的输入/输出范围及其前后 residual 分支。
 3. 对 block 局部输出和最终 logits/样本做对比，验证 norm 低比特是否可部署。
-

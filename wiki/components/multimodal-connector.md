@@ -1,13 +1,27 @@
 ---
-id: component-multimodal-connector
-title: Multimodal Encoder and Connector
-type: component
-tags: [multimodal, embedding, quantization]
-related: [paradigm-multimodal, component-embedding-lm-head]
-sources: [paper-qwen2-vl, repo-qwen2-vl]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "component-multimodal-connector",
+  "title": "Multimodal Encoder and Connector",
+  "type": "component",
+  "tags": [
+    "multimodal",
+    "embedding",
+    "quantization",
+    "multimodal-connector"
+  ],
+  "related": [
+    "paradigm-multimodal",
+    "component-embedding-lm-head"
+  ],
+  "sources": [
+    "paper-qwen2-vl",
+    "repo-qwen2-vl"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # 多模态 Encoder 与 Connector
@@ -31,4 +45,3 @@ Encoder 把原始模态转换为 feature，connector 把 feature 投影、重采
 1. 核对 processor、encoder、connector 与主干的真实调用链。
 2. 在单模态和组合模态下记录 connector 输入/输出统计。
 3. 先做 connector 局部消融，再评估主干量化和端到端质量。
-

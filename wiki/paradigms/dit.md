@@ -1,13 +1,35 @@
 ---
-id: paradigm-dit
-title: Diffusion Transformer (DiT)
-type: paradigm
-tags: [dit, diffusion, timestep, attention, mlp, quantization]
-related: [component-attention, component-mlp, component-diffusion-timestep, component-normalization, check-calibration-axes]
-sources: [paper-dit, repo-dit]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-dit",
+  "title": "Diffusion Transformer (DiT)",
+  "type": "paradigm",
+  "tags": [
+    "dit",
+    "diffusion",
+    "timestep",
+    "attention",
+    "mlp",
+    "quantization"
+  ],
+  "related": [
+    "component-attention",
+    "component-mlp",
+    "component-diffusion-timestep",
+    "component-normalization",
+    "check-calibration-axes"
+  ],
+  "sources": [
+    "paper-dit",
+    "repo-dit"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "diffusion transformer",
+    "diffusion transformers"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Diffusion Transformer（DiT）
@@ -41,4 +63,3 @@ DiT 用 Transformer 作为扩散模型的去噪主干。图像或视频先被 pa
 ## 来源与证据
 
 DiT 论文和官方实现支持上述主干与 adaLN 结构；具体模型的条件注入和输出目标需要核对版本源码。
-

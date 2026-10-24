@@ -1,13 +1,33 @@
 ---
-id: paradigm-dllm
-title: Diffusion Language Model
-type: paradigm
-tags: [dllm, diffusion, timestep, calibration, quantization]
-related: [component-diffusion-timestep, paradigm-ar, check-calibration-axes]
-sources: [paper-llada, repo-llada]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-dllm",
+  "title": "Diffusion Language Model",
+  "type": "paradigm",
+  "tags": [
+    "dllm",
+    "diffusion",
+    "timestep",
+    "calibration",
+    "quantization"
+  ],
+  "related": [
+    "component-diffusion-timestep",
+    "paradigm-ar",
+    "check-calibration-axes"
+  ],
+  "sources": [
+    "paper-llada",
+    "repo-llada"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [
+    "diffusion language model",
+    "diffusion lm",
+    "扩散语言模型"
+  ],
+  "updated": "2026-10-23"
+}
 ---
 
 # Diffusion Language Model（dLLM）
@@ -41,4 +61,3 @@ dLLM 通过对 token 进行掩码、逐步预测和重新掩码来生成序列�
 ## 来源与证据
 
 LLaDA 论文和官方实现支持 masked diffusion 的基本流程；其他 dLLM 变体必须以其 sampler 和源码为准。
-

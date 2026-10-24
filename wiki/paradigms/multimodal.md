@@ -1,13 +1,30 @@
 ---
-id: paradigm-multimodal
-title: Multimodal Transformer and Omni Models
-type: paradigm
-tags: [multimodal, ar, diffusion, quantization]
-related: [paradigm-ar, paradigm-dit, component-embedding-lm-head, check-quantization-preflight]
-sources: [paper-qwen2-vl, repo-qwen2-vl, repo-huggingface-transformers]
-confidence: source-reported
-evidence_scope: mixed
-validated_at: 2026-10-22
+{
+  "id": "paradigm-multimodal",
+  "title": "Multimodal Transformer and Omni Models",
+  "type": "paradigm",
+  "tags": [
+    "multimodal",
+    "ar",
+    "diffusion",
+    "quantization"
+  ],
+  "related": [
+    "paradigm-ar",
+    "paradigm-dit",
+    "component-embedding-lm-head",
+    "check-quantization-preflight"
+  ],
+  "sources": [
+    "paper-qwen2-vl",
+    "repo-qwen2-vl",
+    "repo-huggingface-transformers"
+  ],
+  "confidence": "source-reported",
+  "evidence_scope": "mixed",
+  "aliases": [],
+  "updated": "2026-10-23"
+}
 ---
 
 # 多模态与 Omni 模型
@@ -40,5 +57,4 @@ validated_at: 2026-10-22
 
 ## 来源与证据
 
-Qwen2-VL 论文/仓库可作为 VLM 结构案例；“Omni”不是单一结构，具体模型必须绑定官方配置和代码。
-
+Qwen2-VL 论文可作为 VLM 结构案例（其官方仓库只提供输入端预处理，不构成结构证据）；“Omni”不是单一结构，具体模型必须绑定官方配置和代码。
