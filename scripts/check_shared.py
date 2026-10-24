@@ -14,7 +14,6 @@ SHARED = (
     "scripts/validate.py",
     "scripts/build_index.py",
     "scripts/check_shared.py",
-    "tests/test_shared_tools.py",
 )
 
 

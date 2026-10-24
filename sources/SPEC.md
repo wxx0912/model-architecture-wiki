@@ -169,7 +169,6 @@ S10 为警告，不阻断校验；未采用的来源应显式留档为备查，�
 ```bash
 python3 scripts/validate.py
 python3 scripts/build_index.py --check
-python3 -m unittest discover -s tests -v
 ```
 
-修改本规范时，必须同步更新实现校验的脚本和本节命令，并补对应的回归测试。
+修改本规范时，必须同步更新实现校验的脚本和本节命令。

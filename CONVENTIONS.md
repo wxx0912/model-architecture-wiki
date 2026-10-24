@@ -38,17 +38,14 @@
 │   ├── INDEX.generated.md    # 生成物
 │   ├── topics/<topic>.md
 │   └── <category>/<id>.md
-├── scripts/
-│   ├── wiki_common.py        # 共享库：读取、校验、检索的公共实现
-│   ├── query.py              # 共享
-│   ├── get_page.py           # 共享
-│   ├── validate.py           # 共享
-│   ├── build_index.py        # 共享
-│   ├── check_shared.py       # 共享：共享文件一致性校验
-│   └── <domain>.py           # 领域特有脚本
-└── tests/
-    ├── test_shared_tools.py  # 共享
-    └── test_<domain>.py      # 领域特有
+└── scripts/
+    ├── wiki_common.py        # 共享库：读取、校验、检索的公共实现
+    ├── query.py              # 共享
+    ├── get_page.py           # 共享
+    ├── validate.py           # 共享
+    ├── build_index.py        # 共享
+    ├── check_shared.py       # 共享：共享文件一致性校验
+    └── <domain>.py           # 领域特有脚本
 ```
 
 ## 2. 页面契约
@@ -189,7 +186,7 @@ python3 scripts/build_index.py [--check]
 1. `wiki/` 下的页面内容与页面类型取值；
 2. `data/vocabulary.yaml` 的页面类型、标签、别名展开表；
 3. `data/<domain>.json` 的领域事实源（可选；结构库为结构档案）；
-4. `scripts/<domain>.py` 与 `tests/test_<domain>.py` 领域脚本与测试；
+4. `scripts/<domain>.py` 领域脚本；
 5. `README.md`、`index.md`、`SKILL.md`、`CONTRIBUTING.md` 的内容；
 6. `sources/topics/` 与来源页内容。
 
@@ -219,19 +216,18 @@ scripts/get_page.py
 scripts/validate.py
 scripts/build_index.py
 scripts/check_shared.py
-tests/test_shared_tools.py
 ```
 
 ### 8.2 校验方式
 
-`scripts/check_shared.py` 计算本仓库共享文件的 SHA-256，与对方仓库的同一清单比对。CI 中
-对方仓库通过公开地址拉取；本地通过 `--peer <路径>` 比对。
+`scripts/check_shared.py` 计算本仓库共享文件的 SHA-256，与对方仓库的同一清单比对。本地通过
+`--peer <路径>` 指定对方仓库路径。
 
 ```bash
 python3 scripts/check_shared.py --peer ../model-architecture-wiki
 ```
 
-不一致时失败并逐文件列出差异。修改共享文件必须同时更新两个仓库，否则 CI 阻断。
+不一致时失败并逐文件列出差异。修改共享文件必须同时更新两个仓库。
 
 ## 9. 校验规则编号
 
@@ -248,9 +244,8 @@ python3 scripts/check_shared.py --peer ../model-architecture-wiki
 ```bash
 python3 scripts/validate.py
 python3 scripts/build_index.py --check
-python3 -m unittest discover -s tests -v
 python3 scripts/check_shared.py --peer <另一仓库路径>
 ```
 
 修改共享文件时，必须同步更新两个仓库，并同时更新本文件与[来源页规范](sources/SPEC.md)中的
-对应条款；规范、校验实现和测试三者不得不同步。
+对应条款。

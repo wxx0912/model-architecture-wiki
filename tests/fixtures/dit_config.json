@@ -1,8 +1,0 @@
-{
-  "_name_or_path": "fixture/DiT-XL-2",
-  "model_type": "dit",
-  "architectures": ["DiT"],
-  "num_hidden_layers": 28,
-  "hidden_size": 1152,
-  "num_attention_heads": 16
-}

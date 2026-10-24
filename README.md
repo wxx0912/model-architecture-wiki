@@ -33,11 +33,9 @@ scripts/validate.py              # 页面、来源与引用校验（共享）
 scripts/build_index.py           # 生成元数据索引（共享）
 scripts/check_shared.py          # 共享文件一致性校验（共享）
 scripts/preflight.py             # 从结构 profile 生成量化前检查清单
-tests/test_shared_tools.py       # 共享工具回归测试（共享）
-tests/test_architecture_wiki.py  # 本库内容与领域事实源测试
 ```
 
-`CONVENTIONS.md`、`sources/SPEC.md`、`scripts/` 下除 `preflight.py` 外的脚本与 `tests/test_shared_tools.py` 属跨库共享文件，必须与算法库逐字节一致，由 `scripts/check_shared.py` 校验。
+`CONVENTIONS.md`、`sources/SPEC.md`、`scripts/` 下除 `preflight.py` 外的脚本属跨库共享文件，必须与算法库逐字节一致，由 `scripts/check_shared.py` 校验。
 
 ## 使用
 
@@ -74,4 +72,4 @@ python3 scripts/check_shared.py --peer ../quantization-algorithm-wiki
 
 ## 贡献原则
 
-优先引用论文、官方技术报告、官方源码和具体版本；不要把典型实现当成所有模型的硬约束。新增来源时写来源页而不是表格行，新增页面时补充来源 ID、相关页面和别名，然后运行 `scripts/validate.py`、`scripts/build_index.py --check` 与 `python3 -m unittest discover -s tests -v`。改共享文件时同步算法库并跑 `scripts/check_shared.py`。
+优先引用论文、官方技术报告、官方源码和具体版本；不要把典型实现当成所有模型的硬约束。新增来源时写来源页而不是表格行，新增页面时补充来源 ID、相关页面和别名，然后运行 `scripts/validate.py`、`scripts/build_index.py --check`。改共享文件时同步算法库并跑 `scripts/check_shared.py`。

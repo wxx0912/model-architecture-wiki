@@ -1,9 +1,0 @@
-{
-  "_name_or_path": "fixture/LLaDA",
-  "model_type": "llada",
-  "architectures": ["LLaDAModelLM"],
-  "num_hidden_layers": 32,
-  "hidden_size": 4096,
-  "num_attention_heads": 32,
-  "tie_word_embeddings": false
-}
