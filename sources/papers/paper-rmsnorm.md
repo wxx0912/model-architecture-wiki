@@ -13,7 +13,6 @@
   ],
   "read_locator": "§3 Eq.(2)–(3)、§4 Eq.(4) 与 Table 1、§4.1 Eq.(5)–(6)、§4.2 Eq.(8)–(9)、§5、§6.1 Table 2、Table 4 与 Table 5、§6.3 Table 8、§6.4、摘要与 §7",
   "topic": "core",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -45,7 +44,7 @@ RMSNorm 原始论文（arXiv 1910.07467，v1，NeurIPS 2019）。它提出按均
 - Transformer（§6.1 Table 4，base 设置、300K 步，V100 计时）：不归一化时训练失败、BLEU 记 0；LayerNorm 26.6/27.7（248 s）、RMSNorm **26.8**/27.7（231 s，快 6.9%）、pRMSNorm 26.5/**27.8**（225 s，快 9.3%）。
 - CIFAR-10（§6.4）：BatchNorm 最好；LayerNorm 比 Baseline 收敛快却把测试误差弄差 1.53%；RMSNorm 比 Baseline 好 0.013%、比 LayerNorm 省约 20.5% 训练时间；pRMSNorm 再省 2.6% 但测试精度损失 1.54%。
 - 论文用 decoder GRU 的 hidden-to-hidden 映射统计量说明"只做 re-scaling 也够稳"（§6.1 Table 5，逐位置 M/S，ALL 列为全位置平均）：Baseline 的 ALL 为 M −1.60 / S 3.04，LayerNorm 为 M −0.51 / S 1.51，RMSNorm 为 M −0.73 / S 1.50——RMSNorm 的均值没有被归一到 0，但标准差与 LayerNorm 相当，且远小于未归一化的 Baseline。
-- 整体加速区间（摘要与 §7 写作 **7%~64%**）的两端：下端来自 Transformer（Table 4 的 6.9%~9.3%），上端来自 order-embedding 的 pRMSNorm（§6.3 Table 8 记 63.9%，RMSNorm 为 40.8%）。论文明确实际提升取决于框架、硬件、网络结构与其它组件的相对开销（摘要、§7）。
+- 整体加速区间（摘要与 §7 写作 **7%~64%**）原文未逐一指明两端来源；按数值对应，下端近于 Transformer（Table 4 的 6.9%~9.3%）、上端近于 order-embedding 的 pRMSNorm（§6.3 Table 8 记 63.9%，RMSNorm 为 40.8%），此对应为本库推断。论文明确实际提升取决于框架、硬件、网络结构与其它组件的相对开销（摘要、§7）。
 
 ## 不能推出的结论
 

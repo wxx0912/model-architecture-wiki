@@ -13,7 +13,6 @@
   ],
   "read_locator": "摘要、§1、§2.1（Figure 3、Table 1）、§2.2、§3.1.2–3.1.4、§3.2.3、附录 B（DeepSeek-V2-Lite）、附录 C、附录 D（Table 8–9）",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---

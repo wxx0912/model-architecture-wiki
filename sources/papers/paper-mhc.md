@@ -13,7 +13,6 @@
   ],
   "read_locator": "摘要、§1（Eq.1–4）、§2.2、§3（Eq.5、Table 1）、§3.1（Figure 2–3）、§3.2（Table 2）、§4.1（Eq.6）、§4.2（Eq.7–9）、§4.3.1（Eq.10–19）、§4.3.2（Table 3、Eq.20）、§4.3.3（Figure 4）、§5.1、§5.2（Figure 5、Table 4）、§5.3（Figure 6）、§5.4（Figure 7–8）、§6、附录 A（Table 5）",
   "topic": "core",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -56,6 +55,6 @@ mHC（Manifold-Constrained Hyper-Connections）的原始技术报告（DeepSeek-
 - 论文在 Figure 6 caption 里把 3B/9B/27B 三个点都称作各自规模下的 "compute-optimal configuration"，但 §5.1 用的规则是"数据量与参数量成比例"（27B 用 262B token，约 9.7 token/参数），不等于 Chinchilla 口径；引用 "compute-optimal" 时须同时交代论文自己的比例规则，且 3B/9B/27B 的结论不能外推到更大规模、更长序列或不同专家配置。
 - Table 4 的结论是"mHC 优于 HC 的多数基准"，MATH 一项是 HC 更好（26.4 vs 26.0）；引用时不能笼统写成"全面超过 HC"。
 - "Superior scalability" 依据的是**相对 baseline 的 loss gap**趋势（Figure 6a）与内部大规模训练的经验，而非绝对 loss 的缩放指数；不能当作已量化的 scaling law。
-- Amax Gain Magnitude（~3000 vs ~1.6）是在 27B 模型上、对某条选定序列在所有 token 上平均后的诊断量，不能直接换算成精度或数值误差界。
-- 论文的 `n = 4`、block 结构（每层一个 attention + 一个 FFN 视为两个独立层）等设定不是通用最优；`n = 1` 才退化为标准 residual（Eq.6 的说明），不能由 `n = 4` 的结果反推其它 `n`。
+- Amax Gain Magnitude（~3000 vs ~1.6）是在 27B 模型上、对某条选定序列在整个序列上平均后的诊断量（Fig.3/8 的 caption 写明 averaging 口径，Fig.7 未写明，此处按同一口径推断），不能直接换算成精度或数值误差界。
+- 论文的 `n = 4`、层展开口径（每层一个 attention + 一个 FFN 视为两个独立层）等设定不是通用最优；`n = 1` 才回到原始 identity mapping（Eq.6 的说明），不能由 `n = 4` 的结果反推其它 `n`。
 - 本页只是论文级证据，不证明某个 checkpoint 是否启用 mHC、`n` 取多少、Sinkhorn 迭代几次；这些必须回到目标实现的源码与配置核验（本库 `repo-tile-kernels` 只能证明官方有 kernel 实现）。

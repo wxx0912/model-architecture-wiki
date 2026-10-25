@@ -12,7 +12,6 @@
   ],
   "read_locator": "§1、§2 Table 1 与 Figure 1、§2.1 门控与 top-2 输出式、§3 Table 2–3、§3.2 Figure 4、§5 Figure 7–8 与 Table 5",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---

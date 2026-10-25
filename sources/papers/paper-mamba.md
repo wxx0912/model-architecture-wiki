@@ -12,7 +12,6 @@
   ],
   "read_locator": "摘要、§2 Eq.(1)–(4)、§3.1、§3.2 Algorithm 1–2、§3.3、§3.4（Mamba block 架构图）、§3.5 Theorem 1 与 Eq.(5)、§3.6、§4.1、§4.2、§4.5、§4.6、§5 discussion、附录 D",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -21,7 +20,7 @@
 
 Mamba 论文（arXiv 2312.00752，v2）。它提出**选择性状态空间模型（selective SSM，S6）**——让 SSM 的 `Δ, B, C` 成为输入的函数据此按内容选择性地保留/遗忘信息——并把它放进一个**既没有 attention、也没有独立 MLP block** 的简化架构（Mamba）。是本库 `paradigm-ssm` 判断「SSM 层里没有 attention、推理不需要缓存序列」这类结构问题的直接依据。
 
-边界：论文只讨论选择性 SSM 的算法与结构，全篇不涉及量化或低比特；论文里也没有描述「推理态里保留卷积态」，本库此前关于「只有卷积态与 SSM state」的说法须回到实现核验（见「不能推出的结论」）。
+边界：论文只讨论选择性 SSM 的算法与结构，全篇不含量化/低比特实验或方法（§5 Discussion 只把 quantization 列为 LLM 已有、SSM 待考察的能力之一）；论文里也没有描述「推理态里保留卷积态」，本库此前关于「只有卷积态与 SSM state」的说法须回到实现核验（见「不能推出的结论」）。
 
 ## 已读定位与阅读形式
 
@@ -38,7 +37,7 @@ Mamba 论文（arXiv 2312.00752，v2）。它提出**选择性状态空间模型
 - `s_Δ` 可推广（§3.6）：把广播维从 1 扩到 `R`（`R` 取 `D` 的一小部分，参数可忽略），等价地写成低秩投影 `s_Δ(x) = Linear_D(Linear_R(x))`。
 - `A` **没有被做成选择性**：论文的理由是 `A` 只通过 `Ā = exp(ΔA)` 与 `Δ` 交互起作用，因此让 `Δ` 选择性就足以让 `Ā`、`B̄` 选择性（§3.5）。注意严格说 `B̄` 的 ZOH 表达式里也含 `A`（§2，Eq.(4)）；论文并未做 A 选择性的消融。
 - 高效实现（§3.3）：靠 kernel fusion、parallel scan、recomputation 三个经典技术，把状态尽量留在片上高速存储（SRAM）里，避免把完整状态物化到 HBM（参数从 HBM 载入 SRAM，离散化与递推都在 SRAM 内完成，只把输出写回 HBM）。附录 D 给出 fused kernel 的算法级描述，并称 IO 量降低 `O(N)` 倍、实测加速 20–40×，且在 32K 长度上 scan 比 attention 快 up to 7×。
-- Mamba block（§3.4 架构图，按源序是 Figure 3）：把 H3 block 与常见 MLP block **合并成一个同质重复的 block**，块内有**因果短卷积（conv1d）**后接 SSM（§3.4 架构图、附录 D 把 block 组成列为 input projection, convolution, activation, scan, output projection）；相比 H3 把第一个乘性门换成激活函数。扩展因子 `E` 是可控的，**实验里一律固定 `E=2`**、用两个 block 堆叠以匹配 Transformer 中 MHA+MLP 的 `12D²` 参数量；单块参数主要在三个线性投影上，合计 `3ED²`（`2ED²` 输入 + `ED²` 输出），SSM 本身参数少得多。激活用 SiLU/Swish（即 gated MLP 的 SwiGLU 变体），并在 block 里额外加一个归一化层（论文选 LayerNorm，动机来自 RetNet）。
+- Mamba block（§3.4 架构图，按源序是 Figure 3）：把 H3 block 与常见 MLP block **合并成一个同质重复的 block**，块内有**短卷积（conv1d）**后接 SSM（论文只写 convolution / short convolution，“因果”来自官方 `causal_conv1d` 实现；§3.4 架构图、附录 D 把 block 组成列为 input projection, convolution, activation, scan, output projection）；相比 H3 把第一个乘性门换成激活函数。扩展因子 `E` 是可控的，**实验里一律固定 `E=2`**、用两个 block 堆叠以匹配 Transformer 中 MHA+MLP 的 `12D²` 参数量；单块参数主要在三个线性投影上，合计 `3ED²`（`2ED²` 输入 + `ED²` 输出），SSM 本身参数少得多。激活用 SiLU/Swish（即 gated MLP 的 SwiGLU 变体），并在 block 里额外加一个归一化层（论文选 LayerNorm，动机来自 RetNet）。
 - `Δ` 的语义（§3.5）：`Δ` 泛化了 RNN 的 gate——`Δ` 大表示「重置状态、关注当前输入」，`Δ` 小表示「保留状态、忽略当前输入」。
 - Theorem 1（§3.5，Eq.(5)）：取 `N=1、A=−1、B=1、s_Δ = Linear、τ_Δ = softplus` 时，选择性 SSM 的递归退化为经典门控 RNN `g_t = σ(Linear(x_t))`、`h_t = (1−g_t) h_{t-1} + g_t x_t`；论文据此主张 SSM 的离散化是启发式门控机制的原理性基础。
 - 边界重置（§3.5）：多条独立序列拼在一起时，选择性 SSM 可以在边界把状态重置（对应 `Δ_t → ∞`，或上面的 `g_t → 1`），这是 LTI 模型做不到的。

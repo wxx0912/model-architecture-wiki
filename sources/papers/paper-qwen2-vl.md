@@ -11,9 +11,8 @@
     "latex",
     "html"
   ],
-  "read_locator": "摘要、§1（Figure 1、Table 1）、§2.1（Figure 2–3）、§2.2、§2.3、§3 引言（Table 2）、§3.1、§3.2（Table 3–6）、§3.3.1（Table 7、Figure 4）、§3.3.2（Table 8、Figure 5）、§3.3.3（Figure 6）、§4、附录 A（Figure 7–31）",
+  "read_locator": "摘要、§1（Figure 1–2、Table 1）、§2.1（Figure 3）、§2.2、§2.3、§3 引言（Table 2）、§3.1、§3.2（Table 3–6）、§3.3.1（Table 7、Figure 4）、§3.3.2（Table 8、Figure 5）、§3.3.3（Figure 6）、§4、附录 A（Figure 7–31）",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -32,7 +31,7 @@ Qwen2-VL 的官方技术报告（阿里 Qwen 团队；arXiv 2409.12191，v2 2024
 
 ## 关键事实
 
-- **整体结构**（§2.1 Table 1）：沿用 Qwen-VL 的 vision encoder → connector → LLM 范式，LLM 用 Qwen2 系列；三档规模**共用同一个约 675M 的 ViT**（2B = 675M ViT + 1.5B LLM、7B = 675M + 7.6B、72B = 675M + 72B），论文明确说因此 ViT 的算力负载与 LLM 规模无关。
+- **整体结构**（§2 开篇与 §2.1；Table 1）：沿用 Qwen-VL 的 vision encoder → connector → LLM 范式，LLM 用 Qwen2 系列；三档规模**共用同一个约 675M 的 ViT**（2B = 675M ViT + 1.5B LLM、7B = 675M + 7.6B、72B = 675M + 72B），论文明确说因此 ViT 的算力负载与 LLM 规模无关。
 - **Naive Dynamic Resolution**（§2.1）：思路来自 NaViT，直接删掉 ViT 原来的 absolute position embedding、改用 **2D-RoPE**，从而支持任意分辨率→可变数量的 visual token；推理阶段把不同分辨率的图像 pack 进同一条序列，用 pack 后的长度控制显存。
 - **2×2 token 压缩**（§2.1）：ViT 之后接一个简单 MLP，把相邻 `2×2` 个 token 压缩成 1 个，压缩后的序列首尾加 `<|vision_start|>`/`<|vision_end|>`。论文给的例子：**224×224 图像、ViT patch_size=14 → 压缩后 66 个 token** 进入 LLM。
 - **M-RoPE**（§2.1 Figure 3）：把 rotary embedding 拆成 temporal / height / width 三分量。文本：三者用相同 position ID，等价 1D-RoPE；图像：temporal ID 恒定，height/width 按 token 位置赋不同 ID；视频：每帧 temporal ID 递增；多模态混排时每个模态从前一模态的最大 position ID +1 开始。论文称它既改善位置建模，又**降低 image/video 的 position ID 数值**，便于推理期外推。
@@ -56,5 +55,5 @@ Qwen2-VL 的官方技术报告（阿里 Qwen 团队；arXiv 2409.12191，v2 2024
 - "224×224、patch=14 → 66 token" 是论文给的单个示例，不是通用公式；任意分辨率下的 token 数取决于 min_pixels/max_pixels 等预处理设定，必须按目标实现核验。
 - M-RoPE 的三分量分解是论文的建模选择，"降低 position ID 数值从而便于外推"是论文的解释；16K 训练→80K 推理的长度外推只在一个模型（72B）与 Video-MME Medium 上验证，不能当作任意长度、任意模态的外推保证。
 - §3 的对比数字取自论文自报口径（自建内部多语言 OCR 基准、自建 agent 数据集、每视频最多 768 帧、Video-MME 的 w/o subs 列等），"最高分"多为相对当时 SoTA；不能跨来源混用，也不构成独立复现。
-- "72B 超过 GPT-4o / Claude 3.5" 是论文的整体表述：正文**明确点名**的例外是 MMMU、Arabic、R2R/REVERIE，Video-MME 与 MathVision 的差距只在表格里，表内还有正文未点名的落后项（MMMU-Pro 46.2 vs 51.9、ChartQA 88.3 vs 90.8）。引用时不能笼统写成全面领先。
+- "72B 超过 GPT-4o / Claude 3.5" 是论文的整体表述：正文**明确点名**的例外是 MMMU、Arabic；VLN 任务（R2R/REVERIE）正文称与 GPT-4o 相当、都明显落后专用 VLN 模型，Video-MME 与 MathVision 的差距只在表格里，表内还有正文未点名的落后项（MMMU-Pro 46.2 vs 51.9、ChartQA 88.3 vs 90.8）。引用时不能笼统写成全面领先。
 - 本页只是论文级证据，不能证明某个具体 checkpoint 的预处理（min_pixels/max_pixels、每视频帧数上限）、ViT 是否被冻结、token 压缩是否启用；这些必须回到目标实现核验。

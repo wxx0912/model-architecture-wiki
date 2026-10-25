@@ -12,7 +12,6 @@
   ],
   "read_locator": "mamba_ssm/modules/{mamba_simple.py,mamba2.py,mamba3.py,block.py,mha.py,mlp.py}、mamba_ssm/models/{config_mamba.py,mixer_seq_simple.py}、mamba_ssm/ops/{selective_scan_interface.py,triton/,tilelang/mamba3/,cute/mamba3/}、csrc/selective_scan/",
   "topic": "implementations",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -28,10 +27,11 @@ Mamba 系列的官方实现仓库（state-spaces/mamba）。它给 `paradigm-ssm
 
 ## 关键事实
 
-- `Mamba`（mamba_simple.py:31，Mamba-1）：默认 `d_state=16`、`d_conv=4`、`expand=2`，`dt_rank=ceil(d_model/16)`；参数含 `in_proj`（出 `2·d_inner`）、`conv1d`、`x_proj`（出 `dt_rank + 2·d_state`）、`dt_proj`（出 `d_inner`）、`A_log`、`D`、`out_proj`；同时提供整段 `forward` 与单步 `step`（mamba_simple.py:208）。
+- `Mamba`（mamba_simple.py:31，Mamba-1）：默认 `d_state=16`、`d_conv=4`、`expand=2`，`dt_rank` 默认 `"auto"`（代码里取 `ceil(d_model/16)`）；参数含 `in_proj`（出 `2·d_inner`）、`conv1d`、`x_proj`（出 `dt_rank + 2·d_state`）、`dt_proj`（出 `d_inner`）、`A_log`、`D`、`out_proj`；同时提供整段 `forward` 与单步 `step`（mamba_simple.py:208）。
 - `Mamba2`（mamba2.py:37）：默认 `headdim=64`、`ngroups=1`、`chunk_size=256`；`d_inner = expand·d_model`、`nheads = d_ssm // headdim`、`d_in_proj = 2·d_inner + 2·ngroups·d_state + nheads`；带 `RMSNormGated`，并支持张量并行（`ColumnParallelLinear`/`RowParallelLinear`、`world_size` 切分）；前向里 `A = -exp(A_log)`（mamba2.py:182）。
-- `Mamba3`（mamba3.py）：默认 `d_state=128`、`expand=2`、`headdim=64`；用 `heavy_tail_activation` 生成数据相关的 `A`（mamba3.py:27–34、:194）；带 `B_norm`/`C_norm`（`RMSNormGated(d_state)`，mamba3.py:126–127）与 MIMO rank、rotary 角度分量；kernel 走 Triton（`mamba_ssm/ops/triton/mamba3/`）以及 TileLang/CuTe 实现（`ops/tilelang/mamba3/`、`ops/cute/mamba3/`）。
+- `Mamba3`（mamba3.py）：默认 `d_state=128`、`expand=2`、`headdim=64`；用 `heavy_tail_activation` 生成数据相关的 `A`（mamba3.py:27–41、:194）；带 `B_norm`/`C_norm`（`RMSNormGated(d_state)`，mamba3.py:126–127）与 MIMO rank、rotary 角度分量；kernel 走 Triton（`mamba_ssm/ops/triton/mamba3/`）以及 TileLang/CuTe 实现（`ops/tilelang/mamba3/`、`ops/cute/mamba3/`）。
 - 算子层分工：Mamba-1 的 selective scan 在 `csrc/selective_scan/`（fp32/fp16/bf16 的 fwd/bwd CUDA kernel）；Mamba-2 的 SSD 走 Triton（`ops/triton/ssd_bmm.py`、`ssd_chunk_scan.py`、`ssd_chunk_state.py`、`ssd_state_passing.py`、`ssd_combined.py`）；单步更新在 `ops/triton/selective_state_update.py`。
+- 推理态：`Mamba`（mamba_simple.py:255）的 `allocate_inference_cache` 返回一对**固定大小**状态 `(conv_state, ssm_state)`——`conv_state` 缓存短卷积窗口、`ssm_state` 是 SSM 递推状态；单步走 `step(hidden_states, conv_state, ssm_state)`（mamba_simple.py:208）并 `copy_` 更新两者，显存不随序列增长。
 - 语言模型装配入口是 `mamba_ssm/models/mixer_seq_simple.py`（配 `models/config_mamba.py`）；另有 `modules/block.py`、`modules/mha.py`、`modules/mlp.py` 供混合堆叠。
 
 ## 不能推出的结论

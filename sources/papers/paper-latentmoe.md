@@ -13,16 +13,15 @@
   ],
   "read_locator": "摘要、§1、§2.1–2.3（五条设计原则）、§3（Eq.1–2 与 Table 1）、§4（Table 2、§4.1 Figure 3–5、§4.2 Table 3–4 与 Figure 6、§4.3 Table 5 与 Figure 7）、§5",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
 
 ## 这份来源是什么
 
-NVIDIA 技术报告 *LatentMoE*（arXiv 2601.18089，v1）。它从硬件-软件协同设计出发重新审视 MoE：先用 roofline 分析给出五条设计原则（低延迟下受权重加载带宽约束、吞吐场景下受 all-to-all 通信约束、有效非线性预算 `K·m` 不能压、`d` 有任务相关下界 `r_eff`、同时放大 `N` 与 `K` 能指数扩大专家组合空间），据此提出 **LatentMoE**——把 token 先降维投影到 latent 空间再做路由与专家计算，并把省下的预算用来同时放大专家数 `N` 与激活专家数 `K`。
+NVIDIA 技术报告 *LatentMoE*（arXiv 2601.18089，v1）。它从硬件-软件协同设计出发重新审视 MoE：先用 roofline 分析给出五条设计原则（低延迟下受权重加载带宽约束、吞吐场景下受 all-to-all 通信约束、有效非线性预算 `K·m` 不能压、`d` 有任务相关下界 `r_eff`、同时放大 `N` 与 `K` 能指数扩大专家组合空间），据此提出 **LatentMoE**——路由与 shared expert 仍在原始 `d` 维，只有 routed expert 计算放进低维 latent 空间（先路由、后降维）；省下的预算用于放大专家容量，`LMoE-eff` 只放大 `N`，推荐的 `LMoE-acc` 再把 `K` 放大 `α` 倍。
 
-它是本库 `paradigm-latent-moe`（NVIDIA LatentMoE）与 `component-router-expert` 的一手材料：latent 压缩与专家扩增如何配平成本、latent 空间专家参数化的具体形状、以及"MoE 推理瓶颈在带宽/通信而不在 FLOPs"这一量化相关前提。
+它是本库 `paradigm-latent-moe-nvidia`（NVIDIA LatentMoE）与 `component-router-expert` 的一手材料：latent 压缩与专家扩增如何配平成本、latent 空间专家参数化的具体形状、以及"MoE 推理瓶颈在带宽/通信而不在 FLOPs"这一量化相关前提。
 
 范围边界：论文不研究量化误差或低比特训练。与量化的直接接触点有两处：§5 把量化（microscaling data formats、shared micro-exponents）与稀疏、剪枝、专家合并等并列为**正交**技术；§4.3 的实测推理用的是 vLLM + FP8 per-tensor。全文没有量化精度对比或校准分析。
 
@@ -41,14 +40,14 @@ NVIDIA 技术报告 *LatentMoE*（arXiv 2601.18089，v1）。它从硬件-软件
 - **LMoE-eff 定义**（§3，Eq.1）：`LMoE_eff(x) = W_↑ · ( Σ_{i∈T_{K,N'}} p'_i E_i(W_↓ x; ℓ) ) + Σ_{j=N'+1}^{N'+S} E_j(x; d)`，其中 `N' = αN`、`α = d/ℓ`、`p' = softmax(W'_r x)` 且 `W'_r ∈ R^{N'×d}`。只把**输入维** `d` 压成 `ℓ`、中间维 `m` 保持不变（故 `U_eff` 不变）；routed 专家在 latent 空间计算（权重 `W_FC1, W_gate ∈ R^{m×ℓ}`、`W_FC2 ∈ R^{ℓ×m}`），shared 专家与路由仍在原始 `d` 维。dispatch/aggregate 在 latent 空间进行 → 通信量降 `α` 倍、专家权重加载带宽降 `α` 倍。
 - **LMoE-acc 定义**（§3，Eq.2）：与 LMoE-eff 唯一区别是把 top-k 换成 `K' = αK`；通信与带宽回到与标准 MoE 相同，但每 token 的表达力与专家多样性更高。
 - **成本对照**（§3，Table 1）：标准 MoE 通信 `(N/EP)·t_exp·d`、每专家权重加载 `d·m`；LMoE-eff 为 `(N/EP)·t_exp·ℓ` 与 `ℓ·m`（效率↑、精度持平）；**LMoE-acc（推荐）** 为 `(N/EP)·t_exp·d` 与 `d·m`（精度↑、效率持平）。
-- **模型规格**（§4，Table 2）：**16BT-2BA**（27 层、`d=2048`、`N=64`、`K=6`、`S=2`、`m=1408`、SwiGLU、16 attention heads / GQA 16）、**95BT-8BA**（32 层、`d=4096`、`N=128`、`K=6`、`S=2`、`m=2688`、Squared-ReLU、32 heads / GQA 8）、**Hybrid-73BT-8BA**（52 层；原文括号注 "24 Mamba/MoE, 4 Attn."，24+4 与 52 不等，属原文注释口径不清，其余同上）。Hybrid 的 Mamba-2 块取 128 heads、head dim 64、state dim 128、8 groups。
-- **训练设置**（§4）：16BT-2BA 消融沿用 DeepSeek-V2-Lite 的架构与超参；8B 两档序列长 8192、batch 768（≈6M token）、warmup 8.4B token；负载均衡用系数 `1e-4` 的 loss 加 DeepSeek 的无辅助损失策略。
+- **模型规格**（§4，Table 2）：**16BT-2BA**（27 层、`d=2048`、`N=64`、`K=6`、`S=2`、`m=1408`、SwiGLU、16 attention heads / GQA 16）、**95BT-8BA**（32 层、`d=4096`、`N=128`、`K=6`、`S=2`、`m=2688`、Squared-ReLU、32 heads / GQA 8）、**Hybrid-73BT-8BA**（52 层；原文括号注 "24 Mamba/MoE, 4 Attn."（按 24 Mamba + 24 MoE + 4 Attn = 52 读才自洽，原文未写清；其余同上））。Hybrid 的 Mamba-2 块取 128 heads、head dim 64、state dim 128、8 groups。
+- **训练设置**（§4）：16BT-2BA 消融沿用 DeepSeek-V2-Lite 的架构与超参；8B 两档序列长 8192、batch 768（≈6M token）、warmup 8.4B token；8B 两档负载均衡用系数 `1e-4` 的 loss 加 DeepSeek 的无辅助损失策略。
 - **消融（16BT-2BA）**（§4.1）：压缩比扫描（Figure 3）显示 `α ≤ 4` 时质量保持 → 全部后续实验取 `α = 4`；只压 `d` 4× 而不扩专家会显著掉点，把 `N` 扩 `α` 倍可补回（Figure 4）；`ℓ = 512` 下 LMoE-eff ≈ baseline、LMoE-acc 明显更低验证 loss（Figure 5）。
 - **95BT-8BA 下游精度**（§4.2，Table 3，300B token）：baseline（8.47B active / 94.4B）MMLU 58.95、MMLU-Pro 29.26、Code 40.33、Math 64.39、Commonsense 74.32；**LMoE-acc**（8.44B / 94.8B）62.23 / 34.91 / 41.50 / 64.88 / 75.18（全项最高）；**LMoE-eff**（**5.62B** active / 94.8B）61.06 / 34.75 / 40.68 / 63.61 / 73.72。Code = HumanEval/HumanEval+/MBPP/MBPP+ 均值，Math = GSM8K-CoT 与 MATH-500 均值，Commonsense = RACE/ARC-C/HellaSwag/Winogrande 均值。
 - **Hybrid Mamba-Attention 结果**（§4.2，Table 4，1T token）：baseline（8.09B/72.6B）70.10 / 48.30 / 51.95 / 78.32 / 81.73；LMoE-acc（8.02B/72.8B）72.11 / 52.87 / 55.14 / 80.19 / 82.10；LMoE-eff（**5.91B**/72.8B）71.34 / 51.29 / 53.13 / 77.01 / 80.78。
 - **实测推理**（§4.3，Table 5）：Hybrid-73BT-8BA，2×H100、vLLM、**FP8 per-tensor**；tokens/s/GPU 随并发 1→128 由 181.6 升到 1625.8（标准 MoE 206.6→1725.9），高并发下每 GPU 吞吐**最多降约 6%**。论文另提到可继续优化：给 routed/shared 专家用独立 CUDA stream、针对更小 GEMM 适配 CUTLASS kernel。
 - **万亿级投影**（§4.3.1，Figure 7）：用专有模拟器在 20 万+ 运行点上投影 Kimi-K2-1T 与 Kimi-K2-1T-LatentMoE 的吞吐-延迟 Pareto。用 Effective Parameter Multiplier `λ = N_eff / N_treat`（基线 scaling law 由 Qwen-3-Dense 的 MMLU 拟合反推）估得 `λ ≈ 1.35×`，据此构造 iso-accuracy baseline Kimi-K2-1.35T；结论是同等精度下它比 LatentMoE 变体慢 **1.24×–3.46×**，而 latent 投影自身额外开销相对 native Kimi-K2-1T 在 **~9%** 以内。
-- **采用情况**（摘要、§1）：该架构已被 Nemotron-3 Super 与 Ultra 采用并扩到更大规模（引用 NVIDIA 的 Nemotron-3 报告）。§5 把 mHC 列为可互补叠加的同期工作，并称 MoLAE 是最相关的同期工作。
+- **采用情况**（摘要、§1）：该架构已被 Nemotron-3 Super 与 Ultra 采用并扩到更大规模（引用 NVIDIA 的 Nemotron-3 报告）。§5 把 mHC 列为可互补叠加的同期工作，并称 MoLAE 是最相关的工作。
 
 ## 不能推出的结论
 

@@ -13,7 +13,6 @@
   ],
   "read_locator": "摘要、§1、§2.2、§3（Eq.1、§3.1 Eq.2–9、§3.2）、§4、§5.1–5.6（Table 1–5）、§6.1–6.3（Table 6）、§7.1（Table 7）、附录 A–D（含 appendix:results）",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -32,7 +31,7 @@ Kimi Linear 技术报告（arXiv 2510.26692，v2，Moonshot AI）。核心是 **
 
 ## 关键事实
 
-- **KDA 递推**（§3 Eq.1）：`S_t = (I − β_t k_t k_tᵀ) Diag(α_t) S_{t-1} + β_t k_t v_tᵀ`（`S_t ∈ R^{d_k×d_v}`）、`o_t = S_tᵀ q_t`。相对 Gated DeltaNet 的标量门，KDA 把门升级成**逐通道对角矩阵 `Diag(α_t)`**（思路类比 GLA），对有限状态 RNN 的记忆做更细粒度的衰减控制。
+- **KDA 递推**（§3 Eq.1）：`S_t = (I − β_t k_t k_tᵀ) Diag(α_t) S_{t-1} + β_t k_t v_tᵀ`（`S_t ∈ R^{d_k×d_v}`）、`o_t = S_tᵀ q_t`。相对 Gated DeltaNet 的标量门，KDA 把门升级成**逐通道对角矩阵 `Diag(α_t)`**（思路类比 GLA，见 §1 与 §6.2），对有限状态 RNN 的记忆做更细粒度的衰减控制。
 - **参数化**（§4）：`q_t, k_t = L2Norm(Swish(ShortConv(W x_t)))`、`v_t = Swish(ShortConv(W_v x_t))`、`α_t = f(W_α^↑ W_α^↓ x_t) ∈ [0,1]^{d_k}`（**低秩投影，rank 等于 head dim**）、`β_t = Sigmoid(W_β x_t) ∈ [0,1]`；`d_k = d_v = 128`（全部实验）。输出 `o_t = W_o( Sigmoid(W_g^↑ W_g^↓ x_t) ⊙ RMSNorm(KDA(...)) )`——输出门同样低秩，论文称可在与全秩门性能相当的同时缓解 Attention Sink。
 - **chunkwise 算法**（§3.1 Eq.2–9）：chunk 展开后用 WY 表示压缩、UT transform 降低非 matmul FLOPs；状态更新 `S_{[t+1]} = Diag(γ^C) S_{[t]} + (Γ^{i→C} ⊙ K)ᵀ(U − W S_{[t]})`，输出拆成 inter-chunk 与 intra-chunk 两项（Eq.9）。
 - **KDA 是受限 DPLR**（§3.2、§6.1–6.3、§7.1；Table 6 递归/并行等价形式对照、Table 7 更新规则总表）：一般 DPLR 为 `S_t = (D − a_t b_tᵀ) S_{t-1} + k_t v_tᵀ`；KDA 取 `D = Diag(α_t)`、`a_t = β_t k_t`、`b_t = k_t ⊙ α_t`（等价于把 `a = b = k` 绑定）。这样可把衰减项提到 Householder 变换之外，**免掉 DPLR 需要的二级 chunking**（二级 chunk 矩阵计算 4→2 次），并在 inter-chunk/输出阶段**再消掉约 3 次矩阵乘**，算子效率相对一般 DPLR 提升约 **100%**；kernel 实测到 64k 长度约为 DPLR 的 **2× 速度**（Figure 2）。
@@ -41,7 +40,7 @@ Kimi Linear 技术报告（arXiv 2510.26692，v2，Moonshot AI）。核心是 **
 - **"可学习位置编码"视角**（§2.2、§6.1）：带门控的 delta 规则可写成数据相关的**乘性位置编码**，放宽了 RoPE 的正交约束（原文该式括号内下标有笔误）；论文因此把**所有 Full MLA 层设为 NoPE**，把位置/recency 信息整体交给 KDA 层（KDA 的逐通道门对应 RoPE 的逐维频率）。
 - **混合结构与规模**（§1、§4、§5.4）：主干沿用 Moonlight；KDA 与 MLA 按 **3:1** 逐层交替（选 layerwise 而非 headwise，理由为基建简单与训练稳定）；MoE 每 token 激活 **256 中的 8 个专家、含 1 个共享专家（7 路由 + 1 共享）**，首层是 dense 层 → **48B 总参 / 3B 激活**。
 - **合成任务**（§5.1 Figure 4）：固定为 2 层 2 head、head dim 128，训练 ≤20000 步，lr 网格 `{5e-5, 1e-4, 5e-4, 1e-3}`，长度 256→2048（Palindrome、MQAR、Stack）。KDA 随长度增长在三个任务上都保持最高准确率，Palindrome 与 MQAR 上**收敛显著快于 GDN**；论文明确说 **Mamba2 在该设置下三个任务全部失败**。
-- **组件消融**（§5.2 Table 1，16 head/16 层，同 FLOPs 预算）：混合比例 **3:1 最优**（train/val PPL 9.23/5.65），纯 MLA（0:1）最差（9.45/5.77）；7:1 验证更差（5.70），1:1 验证接近（5.66）但推理开销更大，15:1 明显更差（9.34/5.82）。输出门 **Sigmoid（默认）> 无门 > Swish**；去掉 depthwise 短卷积后 9.29/5.70，仍不可少。
+- **组件消融**（§5.2 Table 1，16 head/16 层，同 FLOPs 预算）：混合比例 **3:1 最优**（train/val PPL 9.23/5.65），纯 MLA（0:1）训练 PPL 最差（9.45），但验证 PPL 5.77 优于 15:1 的 5.82；7:1 验证更差（5.70），1:1 验证接近（5.66）但推理开销更大，15:1 明显更差（9.34/5.82）。输出门 **Sigmoid（默认）> 无门 > Swish**；去掉 depthwise 短卷积后 9.29/5.70，仍不可少。
 - **NoPE vs RoPE**（§5.2、§5.5 Table 5）：Kimi Linear（NoPE）长上下文平均 **54.5**，同配置但给 MLA 加 RoPE 的版本只有 51.8；短上下文两者接近。论文解释为 RoPE 把过强的显式相对位置信号压在 global 层、与线性层的隐式位置偏置不匹配。
 - **scaling law**（§5.3 Table 2、Figure 5）：8/64 专家、Muon 优化器，五个规模（653M–1.7B 激活、16–24 层、38.8B–128.0B token、ctx 4096）；相对 MLA 基线约 **1.16× 算力效率**，论文自述未做充分超参调优。
 - **主结果：预训练与 SFT**（§5.5 Table 3/4，1.4T token、4k 上下文、同架构同参数量）：预训练阶段 **Kimi Linear > GDN-H > MLA**，MMLU 73.8、MMLU-Pro 51.0、BBH 72.9 均最高，唯一失手 EvalPlus（GDN-H 63.1 > 60.2）；SFT 后 GPQA-Diamond 62.1、AIME 2025 21.3、PolyMath-en 43.6、LiveCodeBench v6 26.0 最高，例外有 MATH500（GDN-H 83.0 > 81.2）、EvalPlus（MLA 62.6 > 61.0）、LiveBench（GDN-H 46.4 > 45.2）。

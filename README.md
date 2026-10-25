@@ -10,14 +10,10 @@
 SKILL.md                         # Agent 入口：何时使用、查询路径、证据边界、输出契约
 index.md                         # 人工导航与知识关系
 index.generated.md               # 生成物，不可手改
-CONVENTIONS.md                   # 组织规范，跨库共享
-CONTRIBUTING.md                  # 内容维护约定
-wiki/TEMPLATE.md                 # 页面模板
 wiki/paradigms/                  # 模型范式
 wiki/components/                 # 可复用结构组件
 wiki/models/                     # 具体模型案例
 wiki/checks/                     # 结构识别和量化前检查
-sources/SPEC.md                  # 来源页规范，跨库共享
 sources/README.md                # 来源层入口
 sources/topics/                  # 主题级说明与边界
 sources/<category>/<id>.md       # 一来源一文件（papers / repos / docs）
@@ -35,7 +31,7 @@ scripts/check_shared.py          # 共享文件一致性校验（共享）
 scripts/preflight.py             # 从结构 profile 生成量化前检查清单
 ```
 
-`CONVENTIONS.md`、`sources/SPEC.md`、`scripts/` 下除 `preflight.py` 外的脚本属跨库共享文件，必须与算法库逐字节一致，由 `scripts/check_shared.py` 校验。
+`scripts/` 下除 `preflight.py` 外的脚本属跨库共享文件，必须与算法库逐字节一致，由 `scripts/check_shared.py` 校验。
 
 ## 使用
 
@@ -68,7 +64,7 @@ python3 scripts/check_shared.py --peer ../quantization-algorithm-wiki
 
 ## 页面约定
 
-页面使用 JSON frontmatter（见 `CONVENTIONS.md` 第 2 节），必需字段为 `id`、`title`、`type`、`tags`、`aliases`、`related`、`sources`、`confidence`、`evidence_scope`、`updated`。正文以一级标题开头，按 `wiki/TEMPLATE.md` 的小节组织。`updated` 只是页面编辑日期；`sources` 指向 `sources/` 下的来源页，字段契约见 `sources/SPEC.md`。代表性结构族另有 JSON profile，生成的 preflight 记录遵循 `data/preflight.schema.json`。证据分类区分 `source-reported`、`source-confirmed`、`config-confirmed`、`state-dict-confirmed`、`forward-confirmed`、`inferred` 和 `unknown`；`confidence` 只描述页面证据强度，不代表量化效果已经验证。
+页面使用 JSON frontmatter，必需字段为 `id`、`title`、`type`、`tags`、`aliases`、`related`、`sources`、`confidence`、`evidence_scope`、`updated`。正文以一级标题开头。`updated` 只是页面编辑日期；`sources` 指向 `sources/` 下的来源页。代表性结构族另有 JSON profile，生成的 preflight 记录遵循 `data/preflight.schema.json`。证据分类区分 `source-reported`、`source-confirmed`、`config-confirmed`、`state-dict-confirmed`、`forward-confirmed`、`inferred` 和 `unknown`；`confidence` 只描述页面证据强度，不代表量化效果已经验证。
 
 ## 贡献原则
 

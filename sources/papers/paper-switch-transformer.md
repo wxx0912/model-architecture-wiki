@@ -13,7 +13,6 @@
   ],
   "read_locator": "§2.1 Eq.(1)–(2)、§2.2 专家容量 Eq.(3) 与辅助损失 Eq.(4)–(6)、§2.3 Table 1、§2.4 Table 2–4、§3 Figure 4–6、§4.3 Figure 7–8、§5.6 Table 9、附录 B/C",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---

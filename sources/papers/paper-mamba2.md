@@ -12,7 +12,6 @@
   ],
   "read_locator": "摘要、§3.1–3.3（SSM 矩阵形式、半可分矩阵、SSM=SSS）、§5.1（scalar-identity SSM 与二次形式的等价）、§6 与 Theorem 6.1（chunked 算法与复杂度）、§7.1 块设计、§7.2 head pattern 与 Proposition 7.2、§7.3 kernel feature map、§8（张量并行版 block 数据流）、§9.4.2（架构消融默认超参）、§9.1（MQAR）、§9.2 语言建模（zero-shot 表、SSD+attention 表、2.7B 混合模型表）、§9.3 速度基准",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -32,7 +31,7 @@ Mamba-2 / State Space Duality（SSD）论文（arXiv 2405.21060，v1）。它用
 - 论文的主结果是：SSM 的矩阵形式 `M = SSS(A,B,C)`（`M_ji = C_jᵀ A_{j:i} B_i`）与结构化 masked attention 在特定结构化情形下**重合**，线性时间的 SSM 算法与二次时间的 kernel attention 算法是同一对象的两面对偶（§5、§6）。
 - 关键特化（§5.1）：当 `A_j` 退化为标量时（`A = aI`），`M = L ∘ (C Bᵀ)`，其中 `L = 1SS(a)`；此时"物化 T×T 半可分矩阵再做二次乘法"与 quadratic masked kernel attention 完全等价。
 - 这对应 Mamba-2 相对 Mamba-1 的**结构限制**：`A` 由 Mamba-1 的 **diagonal（每个通道一个 N 维对角阵）收紧为 scalar×identity**——每个 head 一个输入相关的标量衰减因子，换来线性与二次两种算法可互换，以及分块（chunked）高效实现（§2.4 Overview 与 §5.1；该说法在 Related Work 一节亦有明确表述）。
-- 高效算法（§6，Theorem 6.1）：SSD 的 chunked 算法把半可分矩阵做块分解——对角块用二次（attention）模式算，非对角块用半可分的秩结构归约成更小的递推；在与状态维相同的设定下取 `N = P = Q`（状态维 = head 维 = chunk 长度），复杂度是训练 `O(TN²)` FLOPs、推理 `O(TN)` FLOPs、推理显存 `O(N²)`，且计算以矩阵乘法为主。
+- 高效算法（§6，Theorem 6.1）：SSD 的 chunked 算法把半可分矩阵做块分解——对角块用二次（attention）模式算，非对角块用半可分的秩结构归约成更小的递推；Theorem 6.1 设定 `P = N`，§6.3 为给出复杂度界再取 `N = P = Q`（状态维 = head 维 = chunk 长度，属理论设定），复杂度是训练 `O(TN²)` FLOPs、推理 `O(TN)` FLOPs、推理显存 `O(N²)`，且计算以矩阵乘法为主。
 - Mamba-2 block（§7.1，架构图）：去掉 Mamba-1 的串行线性投影，`A, X, B, C` 在 block 开头由**同一个投影并行产生**（类比 attention 里 Q/K/V 并行产生）；并在最终输出投影前**额外加一个归一化层**（LayerNorm / GroupNorm / RMSNorm，灵感来自 NormFormer，作用在乘法门控分支**之后**）。论文称这是**初步实验**中发现的大模型不稳定性的缓解手段，并行投影还略微减少参数量、更适配 Megatron 式张量并行切分。
 - 张量并行下的 block 数据流（§8）：`x = uW^{(x)}`、`z = uW^{(z)}`、`Δ,B,C = projection(u)`（直接从 `u` 而不是 `x_c` 投影，以便切分、且整个 block 只需一次 all-reduce）、`x_c = conv1d(x)`（depthwise、沿 `d` 独立）、`y = SSM_{A,B,C,Δ}(x_c)`、`y_g = y·φ(z)`（门控，如 SiLU）、`y_n = groupnorm(y_g)`（组数需被张量并行度整除）、最终输出投影。（源文件末行写的是 `y_g W^{(o)}`，而上一行刚定义 `y_n`；按上下文应为 `y_n`，原文如此。）
 - 多 head 视角（§7.2）：SSM 的状态维 `N` 与 head 维 `P` 分别类比 attention 的 QK head 维与 V head 维；实践中取常数（典型 `P={64,128}`），当模型维 `D` 增大时增加 head 数，而不是增大 `N`/`P`。

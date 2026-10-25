@@ -12,21 +12,20 @@
   ],
   "read_locator": "仓库根目录（README.md、Attention_Residuals.pdf、assets/）",
   "topic": "implementations",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
 
 ## 这份来源是什么
 
-Attention Residuals（AttnRes）的官方 GitHub 仓库，由 `paper-attnres` 的标题页给出（MoonshotAI/Attention-Residuals）。截至所读 commit，仓库**只有 README、技术报告 PDF 与图片素材，没有训练或推理代码**。所以它在本书中的作用是"论文的官方出处与配图来源"，不是实现依据：`component-attention-residuals` 与 `models/kimi-linear` 里关于 AttnRes 的结构事实全部来自 `paper-attnres`。
+Attention Residuals（AttnRes）的官方 GitHub 仓库，由 `paper-attnres` 的标题页给出（MoonshotAI/Attention-Residuals）。截至所读 commit，仓库**只有 README、技术报告 PDF 与图片素材，没有训练或推理代码**。所以它在本书中的作用是"论文的官方出处与配图来源"，不是实现依据：`component-attention-residuals` 里关于 AttnRes 的结构事实全部来自 `paper-attnres`。
 
-与相邻来源的分工：若要在**实现层**核实 AttnRes 的每层伪 query、RMSNorm、跨层 softmax 与 block 划分，本仓库帮不上忙（该 commit 下没有可读的模型代码）；对照 `repo-tile-kernels`，后者才有可读的 mHC 相关算子。
+与相邻来源的分工：若要在**实现层**核实 AttnRes 的每层伪 query、RMSNorm、跨层 softmax 与 block 划分，本仓库帮不上忙（该 commit 下没有可读的模型代码）。
 
 ## 已读定位与阅读形式
 
 - 阅读形式：GitHub 仓库文件树（`repo-tree`），按 commit `85e22310fe5ee860b4a023de312d791de8a5a5e6` 读取。
-- 已读定位：根目录文件清单，共 6 个 blob。
+- 已读定位：仓库文件树（根目录 2 个 blob + `assets/` 4 个），共 6 个 blob。
 
 ## 关键事实
 

@@ -12,7 +12,6 @@
   ],
   "read_locator": "models.py（TimestepEmbedder、LabelEmbedder、DiTBlock、FinalLayer、DiT、initialize_weights、DiT_models）、train.py、sample.py、sample_ddp.py、diffusion/{gaussian_diffusion,respace,timestep_sampler,diffusion_utils}.py",
   "topic": "implementations",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -29,10 +28,10 @@ DiT（Scalable Diffusion Models with Transformers）的官方 PyTorch 实现。�
 ## 关键事实
 
 - `DiT`（models.py:145）由 `PatchEmbed` → 固定 sin-cos `pos_embed`（`nn.Parameter(..., requires_grad=False)`，models.py:174）→ `depth` 个 `DiTBlock` → `FinalLayer` 组成；前向顺序为 patch 化 → 逐 block `x = block(x, c)` → `final_layer` → `unpatchify`（models.py:233–248）。
-- `DiTBlock`（models.py:101）用 `nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)` 作 `norm1/norm2`，条件 `c` 经 `adaLN_modulation = Sequential(SiLU, Linear(hidden, 6*hidden))` 后 `chunk(6)` 出 shift/scale/gate 三组（models.py:107–119）。
+- `DiTBlock`（models.py:101）用 `nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)` 作 `norm1/norm2`，条件 `c` 经 `adaLN_modulation = Sequential(SiLU, Linear(hidden, 6*hidden))` 后 `chunk(6)` 出 attention 与 MLP 各一组的 shift/scale/gate（models.py:107–119）。
 - **adaLN-Zero**：`initialize_weights`（models.py:182）把每个 block 的 `adaLN_modulation[-1].weight/bias` 与 `final_layer.adaLN_modulation[-1]`、`final_layer.linear.weight/bias` 全部零初始化（models.py:209–216）。
 - 条件输入 `c = t + y`，其中 `t = t_embedder(t)`、`y = y_embedder(y, training)`（models.py:241–243）；`learn_sigma=True` 时 `out_channels = in_channels * 2`（models.py:163–165），即同时预测噪声与方差。
-- 12 个规模配置由 `DiT_models` 字典给出（models.py:365）；例如 `DiT_XL_2` = `depth=28, hidden_size=1152, patch_size=2, num_heads=16`（models.py:328–330），另有 XL/L/B/S × patch 2/4/8。
+- 12 个规模配置由 `DiT_models` 字典给出（models.py:365）；例如 `DiT_XL_2` = `depth=28, hidden_size=1152, patch_size=2, num_heads=16`（models.py:328–329），另有 XL/L/B/S × patch 2/4/8。
 - 结构基础件复用 `timm.models.vision_transformer` 的 `PatchEmbed`、`Attention`、`Mlp`（models.py:16），本仓库不含自研 attention/MLP 实现。
 - 训练与采样入口是 `train.py`、`sample.py`、`sample_ddp.py`；扩散过程（噪声调度、重参数化）在 `diffusion/gaussian_diffusion.py` 与 `diffusion/respace.py`。
 

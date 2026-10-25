@@ -13,7 +13,6 @@
   ],
   "read_locator": "§1（含训练成本表）、§2.1.1、§2.1.2、§2.2、§3.2.1–3.2.3、§3.3 与 content/fp8.tex、§4.2、§4.3、§4.4 与 tables/base_evaluation.tex、§5.3 与 tables/chat_evaluation.tex、附录 B.1–B.2",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -38,11 +37,11 @@ DeepSeek-V3 技术报告（arXiv 2412.19437，v2）。671B 总参数 / 每 token
 - **MTP**（§2.2）：用 `D` 个**串行**模块预测 `D` 个额外 token（与 Meta 的并行独立输出头不同），保持完整因果链。第 k 个模块 = 与主模型共享的 embedding 层、共享输出头、一个 Transformer block、以及投影 `M_k ∈ R^{d×2d}`；`h'^k_i = M_k[RMSNorm(h^{k-1}_i); RMSNorm(Emb(t_{i+k}))]`；损失 `L_MTP = (λ/D) Σ_{k=1}^{D} L^k_MTP`。推理时可**直接丢弃 MTP 模块**，也可**复用于投机解码**。
 - **模型超参**（§4.2）：61 层、hidden 7168、参数按 std 0.006 初始化；`n_h=128`、`d_h=128`、`d_c=512`、`d'_c=1536`、`d_h^R=64`；**除前三层外所有 FFN 都换成 MoE 层**；每 MoE 层 **1 个共享专家 + 256 个路由专家**、专家中间维 2048、**每 token 激活 8 个路由专家**、每 token 最多送到 4 个节点；MTP 深度 `D=1`；像 V2 一样在压缩 latent 之后加 RMSNorm、在宽度瓶颈乘缩放因子 → 671B 总参 / 37B 激活。
 - **训练超参**（§4.2）：14.8T token、最大序列 4K；AdamW `β=(0.9,0.95)`、`weight_decay=0.1`；学习率先 2K 步升到 `2.2e-4`，保持到 10T token，再用 4.3T token 余弦衰减到 `2.2e-5`，最后 500B token 中前 333B 保持 `2.2e-5`、后 167B 用 `7.3e-6`；梯度裁剪 1.0；batch size 在前 469B token 从 3072 升到 15360；`M=4`；`γ=0.001`（前 14.3T）后为 `0.0`（最后 500B）；`α=0.0001`；`λ=0.3`（前 10T）后为 `0.1`。
-- **FP8 混合精度训练**（§3.3 与 `content/fp8.tex`）：三个 GEMM（`Fprop`/`Dgrad`/`Wgrad`）都用 FP8（输入 FP8、输出 BF16 或 FP32，理论比 BF16 快 2 倍，`Wgrad` 允许把激活按 FP8 缓存以省显存）；**保留高精度**的是 embedding、输出头、MoE gating、归一化算子、attention 算子，以及 master weight、权重梯度、优化器状态。**细粒度量化**：激活按 **`1x128` tile**（每 token 每 128 通道）、权重按 **`128x128` block** 分组缩放，标准 FP8 GEMM 不支持、需配合 FP32 累加自行实现。**累加精度**：H800 上 FP8 GEMM 累加只保留约 14 bit（远低于 FP32），因此每隔 `N_C=128` 个元素的 MMA 就提升到 CUDA Core 做高精度累加。**格式**：所有张量统一用 **E4M3**（靠细粒度分组共享指数位弥补动态范围，即 mantissa over exponents）。**在线量化**：每个 tile/block 都**在线**求 amax 再算 scale，不用历史 amax 的延迟量化。**低精度存储与通信**：AdamW 一阶/二阶矩用 BF16 跟踪（master weight 与梯度仍 FP32）；attention 后 Linear 的输入改用定制 **E5M6**、scale 取 2 的整数次幂、反向从 `1x128` tile 转 `128x1`；MoE 里 SwiGLU 输入按 FP8 缓存、反向重算输出；MoE 上投影前的激活与下投影前的激活梯度量化成 FP8 后再参与 dispatch 通信，而 forward/backward 的 **`combine` 组件仍保持 BF16** 以保住关键路径精度。
+- **FP8 混合精度训练**（§3.3 与 `content/fp8.tex`）：三个 GEMM（`Fprop`/`Dgrad`/`Wgrad`）都用 FP8（输入 FP8、输出 BF16 或 FP32，理论比 BF16 快 2 倍，`Wgrad` 允许把激活按 FP8 缓存以省显存）；**保留高精度**的是 embedding、输出头、MoE gating、归一化算子、attention 算子，以及 master weight、权重梯度、优化器状态。**细粒度量化**：激活按 **`1x128` tile**（每 token 每 128 通道）、权重按 **`128x128` block** 分组缩放，标准 FP8 GEMM 不支持、需配合 FP32 累加自行实现。**累加精度**：H800 上 FP8 GEMM 累加只保留约 14 bit（远低于 FP32），因此每隔 `N_C=128` 个元素的 MMA 就提升到 CUDA Core 做高精度累加。**格式**：所有张量统一用 **E4M3**（靠细粒度分组共享指数位弥补动态范围）。**在线量化**：每个 tile/block 都**在线**求 amax 再算 scale，不用历史 amax 的延迟量化。**低精度存储与通信**：AdamW 一阶/二阶矩用 BF16 跟踪（master weight 与梯度仍 FP32）；attention 后 Linear 的输入改用定制 **E5M6**、scale 取 2 的整数次幂、反向从 `1x128` tile 转 `128x1`；MoE 里 SwiGLU 输入按 FP8 缓存、反向重算输出；MoE 上投影前的激活与下投影前的激活梯度量化成 FP8 后再参与 dispatch 通信，而 forward/backward 的 **`combine` 组件仍保持 BF16** 以保住关键路径精度。
 - **FP8 消融**（附录 B.1）：在约 16B/1.33T token 与约 230B/0.9T token 两个基线上对比，FP8 相对 BF16 的相对误差保持在 **0.25% 以下**。
 - **激活梯度的精度敏感性**（附录 B.2）：把与 `Dgrad` 相关的张量改成 `128x128` block-wise 量化，会让一个约 16B 的 MoE 在约 300B token 的训练中**发散**；论文**推测**原因是激活梯度在 token 间高度不平衡、产生 token 相关的离群值，而 block-wise 量化无法处理这类离群值。
 - **上下文扩展与基础设施**（§4.3、§1、§3）：预训练后用 YaRN 做两阶段扩展、各 1000 步，4K → 32K → 128K（`s=40`、`α=1`、`β=32`、缩放因子 `√t = 0.1 ln s + 1`），且**只作用于解耦共享 key `k^R`**。DualPipe 流水并行（气泡更少、把大部分通信与计算重叠）、自研跨节点 all-to-all kernel 吃满 IB 与 NVLink 带宽，并把显存优化到**不需要张量并行**即可训练。
-- **评测**（§4.4/§5.3）：Base 版（对比 V2-Base / Qwen2.5-72B-Base / LLaMA-3.1-405B-Base）——MMLU 87.1、MMLU-Pro 64.4、BBH 87.5、HumanEval 65.2、MMMLU-non-English 79.4；Chat 版（对比 V2-0506 / V2.5-0905 / Qwen2.5-72B-Inst / LLaMA-3.1-405B-Inst / Claude-3.5-Sonnet-1022 / GPT-4o-0513）——MMLU 88.5、MMLU-Pro 75.9。两张表题注都强调用同一套内部评测框架；base 表逐行标 `# Shots` 与 metric，chat 表只标 metric、输出长度限 8K、少于 1000 样本的基准用不同 temperature 多次测试取稳健结果。§4.4 自述评测框架在过去几个月有变化、V2-Base 数字与先前报告略有差异。
+- **评测**（§4.4/§5.3）：Base 版（对比 V2-Base / Qwen2.5-72B-Base / LLaMA-3.1-405B-Base）——MMLU 87.1、MMLU-Pro 64.4、BBH 87.5、HumanEval 65.2、MMMLU-non-English 79.4；Chat 版（对比 V2-0506 / V2.5-0905 / Qwen2.5-72B-Inst / LLaMA-3.1-405B-Inst / Claude-3.5-Sonnet-1022 / GPT-4o-0513）——MMLU 88.5、MMLU-Pro 75.9。base 表题注强调用同一套内部评测框架、逐行标 `# Shots` 与 metric；chat 表题注无此表述，只标 metric、输出长度限 8K、少于 1000 样本的基准用不同 temperature 多次测试取稳健结果。§4.4 自述评测框架在过去几个月有变化、V2-Base 数字与先前报告略有差异。
 
 ## 不能推出的结论
 
@@ -51,6 +50,6 @@ DeepSeek-V3 技术报告（arXiv 2412.19437，v2）。671B 总参数 / 每 token
 - 「激活梯度对 block-wise 量化敏感」的**原因**是论文的**假设**（token 间不平衡导致 token 相关离群值），不是已证明的机制；但"block-wise 量化 Dgrad 会导致该 16B MoE 训练发散"是论文报告的实测结果。
 - 论文没有公开量化校准数据集、per-channel/per-token 的激活分布统计或 outlier 的逐层位置；本库要与量化实现对齐时必须另行在目标 checkpoint 上测量。
 - MLA 推理只缓存 `c^{KV}` 与 `k^R` 是**算法层**事实；论文没有讨论对这两个缓存做低比特量化的误差，也不能据此推断其量化友好度。
-- 「不丢 token」是 V3 在论文的均衡策略与部署下的结论，不能外推到其它 MoE 配置或实现（V2 训练期就丢 token）。
+- 「不丢 token」是 V3 在论文的均衡策略与部署下的结论，不能外推到其它 MoE 配置或实现（V2 训练期丢 token 的说法见 `paper-deepseek-v2`，V3 报告未提及）。
 - MTP 深度 `D=1`、`γ`、`λ`、`α`、学习率表、batch 调度都是**这一次训练**的取值，不是结构约束；MTP 的收益是论文自述观测，本页未独立复现。
 - 论文的对比数字来自各家不同的评测实现，不能跨来源混用；也不能由"V3-Base 是最强开源 base"推出它在任何具体下游任务或量化设置下都更优。后训练章节的 R1 蒸馏消融（LiveCodeBench-CoT 31.1→37.4、MATH-500 74.6→83.2）与 MTP 实测（第二 token 接受率 85–90%、解码 1.8× TPS）不能外推为推理期量化或低比特部署的误差特性。

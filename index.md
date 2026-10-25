@@ -60,4 +60,4 @@ LatentMoE 是歧义术语，检索时必须区分：
 - `python3 scripts/preflight.py <profile-id>`：生成“结构特征—潜在量化风险—检查方法—候选行动”清单；输出中的风险仍标记为待实验验证。
 - `python3 scripts/preflight.py --config <checkpoint>/config.json`：按 `model_type` 自动选择唯一 profile，并将配置字段和 JSON 路径写入证据。
 
-[完整稳定 ID 与标签索引](index.generated.md) · [来源层](sources/README.md) · [来源页规范](sources/SPEC.md)
+[完整稳定 ID 与标签索引](index.generated.md) · [来源层](sources/README.md)

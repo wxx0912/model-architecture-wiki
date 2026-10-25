@@ -1,4 +1,4 @@
-"""比对共享文件与对端仓库是否逐字节一致（CONVENTIONS.md 第 8 节）。"""
+"""比对共享文件与对端仓库是否逐字节一致。"""
 import argparse
 import hashlib
 import sys
@@ -6,8 +6,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = (
-    "CONVENTIONS.md",
-    "sources/SPEC.md",
     "scripts/wiki_common.py",
     "scripts/query.py",
     "scripts/get_page.py",

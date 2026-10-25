@@ -13,7 +13,6 @@
   ],
   "read_locator": "摘要、§1 与 Figure 2、§3.1、§3.2 与 Figure 3–6、Table 1、§4、§5 与 Figure 7–10、§5.1 Table 2–3、§5.2、§6、附录开头（Table 4）、附录 A（timestep 与 CFG 细节）、附录 D 与 Table 5",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -49,9 +48,9 @@ Diffusion Transformer（DiT）论文（arXiv 2212.09748，v2；Peebles & Xie）�
 ## 不能推出的结论
 
 - 这是 **class-conditional ImageNet 图像生成**论文，不能把它的条件注入方式与质量结论直接搬到文本到图像 DiT/MMDiT 或视频 DiT：论文只把 DALL·E 2、Stable Diffusion 的文本条件列为未来工作（§6），并未做实验。
-- 「超过此前最好」在本文里指**超过此前的扩散模型**：256 上 DiT（2.27）只以极小差距优于非扩散的 StyleGAN-XL（2.30），512 上 StyleGAN-XL（2.41）仍然更好（DiT 3.04）。不能读成"刷新了所有生成模型的最好成绩"。
+- "超过此前最好"的口径按分辨率不同：256 上论文明确称达到**所有此前生成模型**的最低 FID（含非扩散的 StyleGAN-XL 2.30，DiT 2.27 只以极小差距领先）；512 上论文只限定在扩散模型之间（StyleGAN-XL 2.41 仍优于 DiT 3.04）。引用时不能把 512 的限定套到 256，也不能用 256 的口径宣称 512 也刷新了全部生成模型。
 - Gflops 是**给定输入分辨率、patch size 与 token 数**下的前向复杂度，不是模型固有属性；表里 Gflops 都不含 VAE。绝对 FID 不能跨评测实现比较（本文特意统一到 ADM 的 TF 套件），更不能跨 VAE 解码器比较（scaling 用 ft-MSE、最终指标用 ft-EMA）。
 - 「adaLN-Zero 最好」只在 4 个 block 变体、XL/2、256×256 图像 class-conditional 这一设定下测得；论文只写"训练四个不同 block 设计的 XL/2 模型"、**未说明是否重复实验**；§5 正文也没写分辨率，该对比的分辨率须由附录 Table 4 的 Image Resolution 列（四行均 `256×256`）确定。
-- 论文只用固定的正弦/余弦位置编码与固定 patchify，未探索可学习位置编码、2D 位置编码、RoPE 或相对位置编码，因此本库的位置编码页面不能引用它来区分这些方案。
+- 论文只用固定的正弦/余弦位置编码与固定 patchify，未探索可学习位置编码、RoPE 或相对位置编码；官方实现用的是 2D sin-cos（`models.py` 的 `get_2d_sincos_pos_embed`），所以不能把它当作"未探索 2D 位置编码"的例证，本库的位置编码页面也不能引用它来区分这些方案。
 - 「无需 warmup、未见 loss spike」是这些配置在 TPU、batch 256、恒定学习率下的观察，不能当作任意 DiT 规模的稳定性保证。
 - 论文不涉及量化、低比特或激活范围统计；本库关于「timestep 会改变激活范围、校准要覆盖采样轨迹」的结论属推断，需在目标实现上另行测量。

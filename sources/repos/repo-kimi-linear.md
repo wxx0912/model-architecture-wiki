@@ -12,7 +12,6 @@
   ],
   "read_locator": "仓库根目录（README.md、tech_report.pdf、figures/、LICENSE）",
   "topic": "implementations",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---

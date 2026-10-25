@@ -13,7 +13,6 @@
   ],
   "read_locator": "摘要、§1、§2.1、§2.2、§3.1（Eq.10 与 Table 1）、§3.2（Table 2）、§3.3、§3.4（Figure 1）、§4（Setup、Table 3、Table 4、Figure 2、Table 5、Figure 3）、§5、§6、附录 A、附录 B.1、附录 B.2（Table S.1–S.2）",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -58,7 +57,7 @@ Gated DeltaNet 论文（arXiv 2412.06464，v3，ICLR 2025 风格）。它把 Mam
 - Table 2/3/4/5 是自研实现、训练长度 4K 下的结果，且评测口径不统一（Table 4 用 Cloze Completion Formatting 提示并截断到 2K，消融表用 lm-evaluation-harness）；不能跨实现直接比较，也不能当作不同算力预算下的绝对排名。
 - "Gated DeltaNet 与 DeltaNet 吞吐相当、比 Mamba2 慢 2–3K tokens/sec"是 1.3B 模型在单张 H100 上的实测，随 kernel、后端与序列长度变化，不是算法固有开销。
 - 正文称结果表覆盖 400M 与 1.3B 两个规模，但 v3 的 Table 3 只列一组行；引用具体数值须同时写明表格与设定。
-- Table S.1/S.2 的结论（head dim 128 最优、输出归一化收益边际、`Mamba2+GDN+SWA` 顺序最好）来自 400M/500M、15B token 的单次消融，是经验折中，不是普适最优配置。
-- 论文没有系统扫描"线性层 : 注意力层"的比例（H1 为 1:1 交替，H2 为三层一组）；`paper-mamba2` 里约 10% 注意力层的结论属另一篇论文的设定，不能移到本页。
+- Table S.1/S.2 的结论（head dim 128 最优、输出归一化收益边际、`Mamba2+GDN+SWA` 顺序最好）来自 400M/500M、15B token 的消融（论文未披露重复次数与种子），是经验折中，不是普适最优配置。
+- 论文没有系统扫描"线性层 : 注意力层"的比例（据 Figure 1 的块设计：H1 为 GDN+SWA、H2 为 Mamba2+GDN+SWA）；`paper-mamba2` 里约 10% 注意力层的结论属另一篇论文的设定，不能移到本页。
 - 摘要"在 in-context retrieval 等基准上超过 Mamba2/DeltaNet"不能反推真实长文档检索已解决：论文自己的 Table 4 显示纯线性模型在真实检索上仍落后注意力。
 - 本页只是论文级证据，不证明任何具体 checkpoint 的实际行为，也不能替代在目标实现上的运行验证。

@@ -10,9 +10,8 @@
   "read_form": [
     "repo-tree"
   ],
-  "read_locator": "README.md、SKILL.md、CLAUDE.md、index.md、references/{primer,schema,examples}.md、scripts/{query.py,get_page.py,grep_wiki.py,repo_status.py}、data/version-claims.yaml、queries/、artifacts/**/PROVENANCE.yaml",
+  "read_locator": "README.md、SKILL.md、CLAUDE.md、index.md、references/{primer,schema,examples}.md、scripts/{query.py,get_page.py,grep_wiki.py,repo_status.py}、data/version-claims.yaml、queries/（7 个 by-*.md 索引）、artifacts/**/PROVENANCE.yaml、wiki/ 与 sources/{prs,docs,blogs,contests} 的目录划分、candidates/{cutlass,sglang,vllm,flashinfer,pytorch,deepgemm}.yaml",
   "topic": "organization",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---

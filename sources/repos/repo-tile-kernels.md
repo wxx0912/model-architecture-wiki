@@ -3,16 +3,15 @@
   "id": "repo-tile-kernels",
   "title": "deepseek-ai/TileKernels（DeepSeek 的 TileLang 算子库：mHC / 量化 / MoE 路由等）",
   "category": "repo",
-  "url": "https://github.com/deepseek-ai/TileKernels/tree/main/tile_kernels/mhc",
+  "url": "https://github.com/deepseek-ai/TileKernels",
   "version": "c1cf914a82e6901c679445f872051ce44ac2cc63",
   "version_kind": "commit",
   "retrieved_at": "2026-10-23",
   "read_form": [
     "repo-tree"
   ],
-  "read_locator": "README.md、pyproject.toml、tile_kernels/mhc/{__init__.py,sinkhorn_kernel.py,...}、tile_kernels/quant/、tile_kernels/{moe,engram,transform,rand}/、tests/{mhc,quant,moe,engram,transform}/",
+  "read_locator": "README.md、pyproject.toml、tile_kernels/mhc/{__init__.py,sinkhorn_kernel.py,...}、tile_kernels/quant/、tile_kernels/{moe,engram,transform,rand}/、tests/{mhc,quant,moe,engram,transform,rand}/",
   "topic": "implementations",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---
@@ -29,11 +28,11 @@ DeepSeek 开源的高性能算子库 TileKernels（基于 TileLang）。它给 `
 ## 关键事实
 
 - README 的 Features 列出 7 条：MoE routing、Quantization（per-token / per-block / per-channel 的 FP8/FP4 cast 与反量化、fused SwiGLU+quant）、Engram、Manifold HyperConnection（mHC）、Transform（RoPE）、Rand，外加一条 `Modeling`（Engram gate 的高层 `torch.autograd.Function` 封装，只有该模块有）；README 声明这些算子已用于其内部训练与推理。
-- mHC 目录 `tile_kernels/mhc/` 共 9 个算子，每个算子由 `*_kernel.py`（实现）+ `*_cuda.py`（NVIDIA 绑定）+ `*_asc.py`（Ascend 绑定）三份组成；导出名见 `tile_kernels/mhc/__init__.py`：`expand_to_mhc_fwd/bwd`、`mhc_head_compute_mix_fwd/bwd`、`mhc_multilayer_recompute`、`mhc_fn_normw_merge_fwd/bwd`、`mhc_reduce_partials_and_rmsnorm_fwd/bwd`、`mhc_post_fwd/bwd`、`mhc_pre_apply_mix_fwd/bwd`、`mhc_pre_big_fuse_fwd`、`mhc_pre_split_mixes_fwd/bwd`、`mhc_sinkhorn_fwd/bwd`。
+- mHC 目录 `tile_kernels/mhc/` 共 9 个算子实现文件（`*_kernel.py`），每个算子由 `*_kernel.py`（实现）+ `*_cuda.py`（NVIDIA 绑定）+ `*_asc.py`（Ascend 绑定）三份组成；`tile_kernels/mhc/__init__.py` 共导出 10 组入口（`norm_fn_kernel.py` 一个文件导出 2 组），导出名：`expand_to_mhc_fwd/bwd`、`mhc_head_compute_mix_fwd/bwd`、`mhc_multilayer_recompute`、`mhc_fn_normw_merge_fwd/bwd`、`mhc_reduce_partials_and_rmsnorm_fwd/bwd`、`mhc_post_fwd/bwd`、`mhc_pre_apply_mix_fwd/bwd`、`mhc_pre_big_fuse_fwd`、`mhc_pre_split_mixes_fwd/bwd`、`mhc_sinkhorn_fwd/bwd`。
 - Sinkhorn 算子签名（sinkhorn_kernel.py:6/15）：`mhc_sinkhorn_fwd(comb_res_mix, comb_res_mix_out, repeat: int, eps: float)` 与对应的 `_bwd`——即把 Sinkhorn 迭代次数 `repeat` 与 `eps` 作为显式参数（与 `paper-mhc` 的 `t_max=20` 一致地说明迭代次数可配）。
 - 双后端：README 记 2026-09-30 新增华为 Ascend 支持（Ascend 950 NPU / CANN ≥9.2.0），运行时自动选择后端，同一套 Python API 同时跑 NVIDIA GPU 与华为 NPU。
 - 依赖（README）：Python ≥3.12、PyTorch ≥2.13、TileLang ≥0.1.15；NVIDIA 路径要求 CUDA Toolkit ≥13.1 且为 SM90 或 SM100。
-- `tile_kernels/quant/` 同样成对给出 fwd/bwd：`per_token_cast(_and_cast_back)`、`per_block_cast`、`per_block_cast_lossless`、`per_channel_cast`、`cast`/`cast_back`、`batched_transpose_weight_sf`、`norm_forward/backward` 等。
+- `tile_kernels/quant/` 给出量化相关算子（部分成对 fwd/bwd，部分为单向 cast）：`per_token_cast(_and_cast_back)`、`per_block_cast`、`per_block_cast_lossless`、`per_channel_cast`、`cast`/`cast_back`、`batched_transpose_weight_sf`、`norm_forward/backward` 等。
 
 ## 不能推出的结论
 

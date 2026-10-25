@@ -1,6 +1,5 @@
 """共享库：知识页与来源页的读取、校验、检索与索引渲染。
 
-页面规则 P1–P9 见 CONVENTIONS.md 第 2 节，来源规则 S1–S11 见 sources/SPEC.md 第 5 节。
 校验输出带规则编号，便于定位条款。词表取值来自 data/vocabulary.yaml 与 data/schemas.yaml，
 共享语义（证据强度、来源类别等）在本文件声明，不写进任何一个仓库的数据文件。
 """
@@ -75,8 +74,6 @@ def schemas(root=ROOT):
 def pages(root=ROOT):
     records = []
     for path in sorted((Path(root) / "wiki").rglob("*.md")):
-        if path.name == "TEMPLATE.md":
-            continue
         meta, body = _frontmatter(path)
         records.append(Page(path, meta, body))
     return records
@@ -342,7 +339,7 @@ def render_source_index(root, registry, records, vocab):
             if source_id in counts:
                 counts[source_id] += 1
     lines = ["# 来源索引", "", "> 由 `python3 scripts/build_index.py` 生成，请勿手改。",
-             "", "来源页规范见 [SPEC.md](SPEC.md)，主题说明见 topics/。", ""]
+             "", "主题说明见 topics/。", ""]
     for topic in vocab["source_topics"]:
         lines += [f"## {topic['label']}", "",
                   f"主题说明：[topics/{topic['name']}.md](topics/{topic['name']}.md)", ""]

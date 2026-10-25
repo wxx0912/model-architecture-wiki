@@ -13,7 +13,6 @@
   ],
   "read_locator": "§3.1–3.5（结构与公式）、§4 Table 1、§5.2–5.4（训练设置）、§6.1 Table 2、§6.2 Table 3、§6.3 Table 4",
   "topic": "core",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---

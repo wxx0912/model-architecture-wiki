@@ -11,9 +11,8 @@
     "latex",
     "html"
   ],
-  "read_locator": "摘要、§1、§2.4、§3.1–3.4（Eq.5–8、Algorithm 1–2）、§4.1（Table 1）、§4.2（Figure 3–5）、§4.3（Table 2）、§4.4、§5–6、附录 A–B（Table 3–5）",
+  "read_locator": "摘要、§1、§2.2–2.4、§3.1–3.4（Eq.5–8、Algorithm 1–2）、§4.1（Table 1）、§4.2（Figure 3–5）、§4.3（Table 2）、§4.4、§5–6、附录 A–B（Table 3–5 在附录 B）",
   "topic": "architectures",
-  "requires_external_verification": true,
   "excerpt_sha256": null
 }
 ---

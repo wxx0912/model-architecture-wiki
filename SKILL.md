@@ -35,7 +35,7 @@ python3 scripts/check_shared.py --peer ../quantization-algorithm-wiki
 
 `--profile`、`--feature`、`--evidence` 读取 `data/architecture-profiles.json`；`--alias` 读取 `data/vocabulary.yaml` 的别名展开表，未登记的键报错而不是静默返回空。`--follow-sources` 展开本地来源页正文，离线可用，末尾附来源 URL 供人工核对。来源可达性检查可显式指定代理：`python3 scripts/validate.py --check-external --proxy <proxy>`；HTTP(S) 代理使用 Python 标准库，SOCKS 代理不被支持，检查结果只表示 URL 可达。
 
-先用关键词、标签和别名缩小范围，再读取具体页面。模型页面用于确认整体组合，组件页面用于理解共性，check 页面用于生成结构核查清单。页面级 `confidence` 是证据总体强度；`evidence_scope: mixed` 表示正文同时含来源事实和结构推断，必须按章节标签继续区分，不能把量化推断当成已验证效果。页面 `sources` 指向 `sources/` 下的来源页，字段与校验规则见 `sources/SPEC.md`；来源页记录实际读取形式、版本锚与“不能推出的结论”，不代表正文结论已被逐条复核。
+先用关键词、标签和别名缩小范围，再读取具体页面。模型页面用于确认整体组合，组件页面用于理解共性，check 页面用于生成结构核查清单。页面级 `confidence` 是证据总体强度；`evidence_scope: mixed` 表示正文同时含来源事实和结构推断，必须按章节标签继续区分，不能把量化推断当成已验证效果。页面 `sources` 指向 `sources/` 下的来源页；来源页记录实际读取形式、版本锚与“不能推出的结论”，不代表正文结论已被逐条复核。
 
 代表性结构族保存在 `data/architecture-profiles.json`。处理具体 checkpoint 时，向 `preflight.py` 传入本地 `config.json` 和已知代码 revision；工具将直接读取的字段标为 `config-confirmed`，记录 JSON key 路径，并根据 query/KV head 数推断 MHA/GQA、根据专家字段提示 MoE。没有 `model_type` 的实现可通过 profile 的 `config_signatures` 按配置路径匹配。缺失字段保持 `unknown`；随后还要对照加载类、state dict、源码和 reference forward。清单中的量化风险统一是“待实验验证”，不能直接当作精度结论。
 
