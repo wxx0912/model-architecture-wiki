@@ -36,7 +36,7 @@
     "multi-head latent attention",
     "多头潜在注意力"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -60,7 +60,7 @@ Attention(Q, K, V) = softmax(QKᵀ / √d_k) · V
 - **GQA / MQA**：只改 q_heads 与 kv_heads 的数量关系——若干（MQA 是全部）query head 共享同一个 K/V head，`W^K/W^V` 的 head 数相应减少。
 - **MLA**：K/V 先做低秩联合压缩 `c^{KV} = W^{DKV} h`（`d_c ≪ d_h·n_h`，每个 token 只留 `c^{KV} ∈ R^{d_c}`），再上投影出 `k^C = W^{UK} c^{KV}`、`v^C = W^{UV} c^{KV}`。RoPE 若直接作用在 `k^C` 上会让上投影矩阵与位置矩阵耦合、无法被吸收，于是另设跨头共享的解耦 key `k^R = RoPE(W^{KR} h)`（每 token 一份，`∈ R^{d_h^R}`）与解耦 query `q^R = RoPE(W^{QR} c^Q)`；每头的 `q_i = [q^C_i; q^R_i]`、`k_i = [k^C_i; k^R]`，attention 分母相应变为 `√(d_h + d_h^R)`。query 侧的低秩压缩 `c^Q = W^{DQ} h` 论文明确只用于降低训练期激活显存。
 
-位置信息注入方式随变体不同：正弦位置编码加在输入 embedding 上，RoPE 类模型作用在 Q/K 上，而 MLA 只作用在解耦的 `q^R`/`k^R` 上，不碰压缩分支的 `q^C`/`k^C`。推理分两个阶段（AR 通用，见 [Autoregressive Transformer](../paradigms/ar.md)）：prefill 一次算整段，decode 每步只算新 token 的 query、读历史缓存；MLA 把 `W^{UK}` 并入 query 侧投影、`W^{UV}` 并入 `W^O` 之后，decode 只需要读缓存的 `c^{KV}` 与 `k^R`（缓存布局与更新方式见 [KV Cache](./kv-cache.md)）。
+位置信息注入方式随变体不同：正弦位置编码加在输入 embedding 上，RoPE 类模型作用在 Q/K 上，而 MLA 只作用在解耦的 `q^R`/`k^R` 上，不碰压缩分支的 `q^C`/`k^C`。推理分两个阶段（AR 通用，见 [Autoregressive Transformer](../paradigms/ar.md)）：prefill 一次算整段，decode 每步算新 token 的 Q/K/V、把新 K/V 写进缓存，Q 再与缓存中的历史 K/V 做 attention；MLA 把 `W^{UK}` 并入 query 侧投影、`W^{UV}` 并入 `W^O` 之后，decode 只需从缓存的 `c^{KV}` 与 `k^R` 上投影出 K/V（缓存布局与更新方式见 [KV Cache](./kv-cache.md)）。
 
 ## 变体对照
 
@@ -85,13 +85,17 @@ DeepSeek-V2 取 `d_c = 4 d_h`、`d_h^R = d_h / 2`，论文据此说 MLA 的 cach
 
 - Q/K/V/O 投影、RoPE、softmax、KV cache 与输出投影是彼此不同的数值路径。
 - GQA/MQA/MLA 改变 KV cache 的形状与更新方式；MLA 推理只需缓存 `c^{KV}` 与跨头共享的 `k^R`，其语义与 MHA/GQA 的显式 K/V cache 不同，要分开分析。
-- DeepSeek-V2 §3.2.3 给出部署期量化陈述：参数转 FP8、KV cache 每个元素平均压到 6 bit；论文没有给这次量化的误差分析、校准方法或逐层影响。
+- DeepSeek-V2 §3.2.3 给出部署期量化陈述：参数转 FP8、KV cache 每个元素平均压到 6 bit。
 
 **量化推断**
 
 - 低比特误差会改变 attention logits 与 softmax 分布，进而影响长上下文行为；Q、K、V、O、latent 投影与 RoPE 输入的取值范围各自不同，prefill 与 decode 的激活分布也不同，验证要分开做。
 - 能否对 QKV 做统一量化、能否复用同一组 scale，取决于具体后端与 packing 规则，不是结构决定的通用约束。
 - MLA 把 K/V 压成 latent 之后缓存内容变了，但论文没有讨论对 latent cache 做低比特量化的误差；“压缩后更省显存就更省量化代价”不成立。
+
+**未知项**
+
+- 该部署量化的误差分析、校准方法与逐层影响，论文未给。
 
 ## 结果边界
 

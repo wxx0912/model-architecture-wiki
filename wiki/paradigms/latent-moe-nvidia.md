@@ -21,7 +21,7 @@
   "confidence": "source-reported",
   "evidence_scope": "mixed",
   "aliases": [],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -72,13 +72,17 @@ routed 专家在 latent 空间计算（`W_FC1, W_gate ∈ R^{m×ℓ}`、`W_FC2 �
 **结构事实**
 
 - routed 专家权重在 latent 空间：`W_FC1, W_gate ∈ R^{m×ℓ}`、`W_FC2 ∈ R^{ℓ×m}`；router 与 shared 专家在原始 `d` 维。
-- 论文 §4.3 的实测推理用 vLLM + **FP8 per-tensor**，这是现成推理配置，不是训练契约。
+- 论文 §4.3 的实测推理用 vLLM + **FP8 per-tensor**（vLLM 的现成推理配置）。
 
-**量化推断（本库推断）**
+**量化推断**
 
 - latent 空间的专家权重通道统计与原始 `d` 维不同，`W_↓`（down 投影）/`W_FC1`/`W_FC2` 的 scale 与 group size 不应套用原维 dense FFN 的默认值。
 - router 在原始 `d` 维工作，路由误差与 latent reconstruction error 要分开记录。
 - 低维投影、专家通信与导出 packing 要先过目标后端约束；量化后需分层统计路由一致率、latent 误差、专家输出误差与端到端质量。
+
+**未知项**
+
+- 论文没有量化敏感性实验，FP8 推理配置不代表对该结构做过量化评估。
 
 ## 结果边界
 

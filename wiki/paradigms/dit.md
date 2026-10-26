@@ -29,7 +29,7 @@
     "diffusion transformer",
     "diffusion transformers"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -79,7 +79,6 @@ adaLN 是其中唯一"对所有 token 施加同一函数"的机制；adaLN-Zero 
 **结构事实**
 
 - 推理是同一主干被反复调用 `T` 步，每一步的输入 `x_t` 与 timestep 都不同；主干包含 attention、MLP、adaLN 调制（scale/shift/gate）与线性输出头。
-- 范围事实：论文与官方仓库都不含量化实现。
 
 **量化推断**
 
@@ -87,6 +86,10 @@ adaLN 是其中唯一"对所有 token 施加同一函数"的机制；adaLN-Zero 
 - adaLN 的调制向量与 gate 会作用到整层，误差随去噪循环反复放大；attention、MLP、输出头与 VAE/连接器要分开评估。
 - 视频或长序列实现还要按空间/时间 token 与显存路径验证，单帧结果不能代表视频质量。
 - 最终 FID / 重建质量与逐层误差不总是单调对应，要同时保留轨迹级与端到端指标。
+
+**未知项**
+
+- 论文与官方仓库都不含量化实现。
 
 ## 结果边界
 

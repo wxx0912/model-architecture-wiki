@@ -25,7 +25,7 @@
   "confidence": "source-reported",
   "evidence_scope": "mixed",
   "aliases": [],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -48,6 +48,8 @@ Qwen2-VL 是视觉语言模型（LVLM），沿用 `vision encoder → connector 
 | 训练 | 三阶段；累计 1.4T token（600B + 800B），只监督 text token；知识截止 2023-06 |
 | 外推 | 训练每视频 ≤16K token，推理到 80K 仍稳定（仅 72B 在 Video-MME Medium 验证） |
 
+表中数值是论文口径（`patch_size=14` 为论文示例）；目标 checkpoint 的视觉配置、预处理默认值与视觉 token 数以该 checkpoint 的 `config.json` 与 processor 为准，本表不能替代。
+
 ## 结构与数据流
 
 图像由 processor 按 `min_pixels`/`max_pixels` 约束切成可变数量的 patch，过 ViT（2D-RoPE，无绝对位置）→ 2×2 MLP 压缩 → 首尾加 `<|vision_start|>`/`<|vision_end|>` → 进入 LLM。论文给的例子：**224×224、`patch_size=14` → 压缩后 66 个 token**。推理阶段把不同分辨率图像 pack 进同一序列，用 pack 后长度控制显存。
@@ -63,14 +65,17 @@ M-RoPE（§2.1 Figure 3）把 rotary 拆成 temporal / height / width 三分量�
 **结构事实**
 
 - visual token 数随分辨率与动态分辨率设定变化，不是固定序列长度；三档只差 LLM 规模、共用同一 ViT。
-- 位置编码是三分量 M-RoPE；视觉侧含一个 2×2 压缩 MLP（论文 §2.1 称 “a simple MLP layer”，§2.3 的并行设置称 vision merger），本库把该压缩 MLP 与 connector 一并归入 connector（工程推断）。
-- 范围事实：论文不含量化/低比特/数值误差分析；`repo-qwen2-vl` 的 README 记录上游发布了 Qwen2-VL-72B 的 AWQ / GPTQ-Int4 / GPTQ-Int8 权重产物（发布事实，不含算法证据）。
+- 位置编码是三分量 M-RoPE；视觉侧含一个 2×2 压缩 MLP（论文 §2.1 称 “a simple MLP layer”，§2.3 的并行设置称 vision merger）。
 
-**量化推断（本库推断）**
+**量化推断**
 
 - 视觉 encoder、connector 与语言主干应分别校准；动态分辨率使视觉 token 数与激活范围随输入变化。
 - 图像、视频与纯文本路径要分开评估，并把 M-RoPE 的位置分配与 attention mask 一起检查。
 - connector 输出量化可能造成视觉语义对齐偏移，应同时记录视觉局部输出、语言 logits 与端到端任务指标。
+
+**未知项**
+
+- 论文不含量化/低比特/数值误差分析；`repo-qwen2-vl` 的 README 记录上游发布了 Qwen2-VL-72B 的 AWQ / GPTQ-Int4 / GPTQ-Int8 权重产物（发布事实，不含算法证据）。
 
 ## 结果边界
 

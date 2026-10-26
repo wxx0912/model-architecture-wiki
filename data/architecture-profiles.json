@@ -22,7 +22,7 @@
         "parameter_sharing": "unknown",
         "special_paths": ["RoPE", "KV cache", "fused QKV/MLP implementation unknown"]
       },
-      "features": ["autoregressive", "attention"],
+      "features": ["autoregressive", "attention", "rope", "rmsnorm", "swiglu", "residual"],
       "evidence": [
         {"feature": "autoregressive", "classification": "source-reported", "source": "paper-transformer", "locator": "decoder-only causal self-attention and next-token path"},
         {"feature": "attention", "classification": "source-confirmed", "source": "repo-huggingface-transformers", "locator": "Qwen2 model implementation; resolve target file and commit"}
@@ -77,7 +77,7 @@
         "parameter_sharing": "unknown",
         "special_paths": ["token-to-expert dispatch", "expert grouped GEMM"]
       },
-      "features": ["autoregressive", "gqa", "moe"],
+      "features": ["autoregressive", "gqa", "moe", "rope", "rmsnorm", "swiglu", "residual"],
       "evidence": [
         {"feature": "autoregressive", "classification": "source-reported", "source": "paper-mixtral", "locator": "model architecture description"},
         {"feature": "gqa", "classification": "source-reported", "source": "paper-mixtral", "locator": "grouped-query attention description"},
@@ -105,7 +105,7 @@
         "parameter_sharing": "unknown",
         "special_paths": ["latent KV/cache path", "MTP presence and export path unknown"]
       },
-      "features": ["autoregressive", "mla", "moe"],
+      "features": ["autoregressive", "mla", "moe", "rope", "rmsnorm", "swiglu", "residual"],
       "evidence": [
         {"feature": "autoregressive", "classification": "source-reported", "source": "paper-deepseek-v3", "locator": "architecture description; bind to the selected report revision"},
         {"feature": "mla", "classification": "source-reported", "source": "paper-deepseek-v3", "locator": "Multi-head Latent Attention section"},
@@ -160,7 +160,7 @@
         "parameter_sharing": "unknown",
         "special_paths": ["mask/remasking trajectory", "sampler-specific update order"]
       },
-      "features": ["masked-diffusion", "autoregressive-transformer-backbone"],
+      "features": ["masked-diffusion", "autoregressive-transformer-backbone", "rope", "rmsnorm", "swiglu", "residual"],
       "evidence": [
         {"feature": "masked-diffusion", "classification": "source-reported", "source": "paper-llada", "locator": "masked diffusion language modeling and sampling sections"},
         {"feature": "autoregressive-transformer-backbone", "classification": "source-confirmed", "source": "repo-llada", "locator": "model implementation; resolve file and commit for target checkout"}
@@ -187,7 +187,7 @@
         "parameter_sharing": "unknown",
         "special_paths": ["dynamic visual token count", "M-RoPE position ids", "video temporal path"]
       },
-      "features": ["autoregressive", "multimodal-vision", "mrope"],
+      "features": ["autoregressive", "multimodal-vision", "mrope", "rmsnorm", "swiglu", "residual"],
       "evidence": [
         {"feature": "autoregressive", "classification": "source-reported", "source": "paper-qwen2-vl", "locator": "language model generation path"},
         {"feature": "multimodal-vision", "classification": "source-reported", "source": "paper-qwen2-vl", "locator": "vision encoder and visual token merger sections"},

@@ -74,7 +74,7 @@
 | --- | --- |
 | 各架构的计算图与动态轴 | [Paradigms](../paradigms/ar.md) 与同库各 paradigm 页 |
 | 各组件引入的运行时状态（cache、timestep、mask、router、state） | [Components](../components/attention.md) 与同库各 component 页 |
-| 校准记录与非法候选过滤 | [量化前检查](quantization-preflight.md) |
+| 校准记录与候选排除判据 | [量化前检查](quantization-preflight.md) |
 | 目标模型上各轴的实际分布与敏感度 | 目标数据上的分层采样与实测（本库不提供） |
 
 回答校准问题时必须说明覆盖了哪些轴、哪些轴降级为未知风险，并区分候选轴清单与实际采样结果。

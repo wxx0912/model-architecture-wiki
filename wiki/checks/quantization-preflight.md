@@ -40,11 +40,11 @@
 - `runtime`：`source_revision`、`device`、`dtype`、`input_signature`；
 - `structure`：`features`、层数/头数/专家数等字段、`attention_layout`、`moe_layout`、`module_dependencies`、`parameter_sharing`、`special_paths`、`tensor_flow`。
 
-另含 `evidence`（每条带证据层级）、`checklist` 与 `required_runtime_confirmation`。
+另含 `evidence`（每条带证据层级）、`checklist` 与 `required_runtime_confirmation`。`checklist` 每条为 `feature`、`pages`（该结构应读的页面）、`potential_risk`、`check_method` 与固定的 `validation_status = 待核实`；本工具不产出候选方案或过滤条件。
 
 ## 证据层级
 
-`evidence.classification` 定义 7 种取值：`source-reported`、`source-confirmed`、`config-confirmed`、`state-dict-confirmed`、`forward-confirmed`、`inferred`、`unknown`；compact 视图把运行时证据分为 `config-confirmed` / `state-dict-confirmed` / `forward-confirmed` / `inferred` 四级。它们表示证据来源，不能改写成量化效果或性能结论。
+`evidence.classification` 定义 7 种取值：`source-reported`、`source-confirmed`、`config-confirmed`、`state-dict-confirmed`、`forward-confirmed`、`inferred`、`unknown`；`--quantization-view` 把运行时证据分为 `config-confirmed` / `state-dict-confirmed` / `forward-confirmed` / `inferred` 四级。它们表示证据来源，不能改写成量化效果或性能结论。
 
 ## 候选排除判据
 
@@ -52,7 +52,7 @@
 
 ## 后续阶段字段
 
-compact 视图含 `quantization_checks`、`quantization_constraints` 与 `runtime_gaps`：`quantization_checks` 是待执行的风险检查建议，不是已确认约束；`quantization_constraints.status = not_assessed` 或其中的 `unknown` 不能解释成"没有约束"。可量化/暂不量化边界、部署约束与校准轴属后续量化与部署契约阶段，需要从结构记录中识别其待补字段，并不由本工具生成。
+`--quantization-view` 输出含 `quantization_checks`、`quantization_constraints` 与 `runtime_gaps`：`quantization_checks` 是页面路由与待核实项（每条给应读页面），不是已确认约束，也不是候选方案；`quantization_constraints.status = not_assessed` 或其中的 `unknown` 不能解释成"没有约束"。可量化/暂不量化边界、部署约束与校准轴属后续量化与部署契约阶段，需要从结构记录中识别其待补字段，并不由本工具生成。
 
 ## 结果边界
 

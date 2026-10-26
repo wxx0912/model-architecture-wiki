@@ -28,7 +28,8 @@
       },
       "tags": {
         "type": "array",
-        "vocabulary": "tags"
+        "vocabulary": "tags",
+        "non_empty": true
       },
       "aliases": {
         "type": "array"

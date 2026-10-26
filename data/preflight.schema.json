@@ -113,13 +113,13 @@
     },
     "check": {
       "type": "object",
-      "required": ["feature", "potential_risk", "check_method", "candidate_action", "validation_status"],
+      "required": ["feature", "pages", "potential_risk", "check_method", "validation_status"],
       "properties": {
         "feature": {"type": "string"},
         "potential_risk": {"type": "string"},
         "check_method": {"type": "string"},
-        "candidate_action": {"type": "string"},
-        "validation_status": {"const": "待实验验证"}
+        "pages": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "validation_status": {"const": "待核实"}
       },
       "additionalProperties": false
     }

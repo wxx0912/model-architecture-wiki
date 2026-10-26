@@ -24,7 +24,7 @@
   "confidence": "source-reported",
   "evidence_scope": "mixed",
   "aliases": [],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -62,13 +62,16 @@ dLLM（LLaDA）沿用非因果 backbone：head 在每一步对**所有被掩码�
 
 - 原始 Transformer 共享 embedding/输出矩阵并给 embedding 乘 `√d_model`（§3.4）。
 - LLaDA 的 head 对所有被掩码位置同时输出 logits，词表为 126,464（论文口径）。
-- 范围事实：三份来源都不含量化实验；`repo-huggingface-transformers` 只记录量化接口入口（`HfQuantizer` 等），不含量化实验。
 
 **量化推断**
 
 - 大 vocabulary 的 LM head 影响 logits、top-k 与 loss，其权重/激活量化的代价与中间 block 不同。
 - tied embedding 量化会同时影响输入表示与输出 logits，必须作为联合约束分析。
 - dLLM 的位置选择与置信度依赖 logits；多模态 connector 的输出范围会改变 head 的校准分布。
+
+**未知项**
+
+- 三份来源都不含量化实验；`repo-huggingface-transformers` 只记录量化接口入口（`HfQuantizer` 等），不含量化实验。
 
 ## 结果边界
 

@@ -43,7 +43,7 @@
 | 边界与布局 | 每个边界的输入/输出 shape、dtype、布局、共享/融合关系、并行切分 | 静态 shape 不证明运行时数值 |
 | 运行确认 | 最小输入的 reference forward | 单次 forward 不覆盖全部路径 |
 
-`data/preflight.schema.json` 的 `evidence.classification` 定义 7 种取值：`source-reported`、`source-confirmed`、`config-confirmed`、`state-dict-confirmed`、`forward-confirmed`、`inferred`、`unknown`；compact 视图把运行时证据分为 `config-confirmed` / `state-dict-confirmed` / `forward-confirmed` / `inferred` 四级。它们是证据层级，不能被改写成量化效果结论。
+`data/preflight.schema.json` 的 `evidence.classification` 定义 7 种取值：`source-reported`、`source-confirmed`、`config-confirmed`、`state-dict-confirmed`、`forward-confirmed`、`inferred`、`unknown`；`--quantization-view` 把运行时证据分为 `config-confirmed` / `state-dict-confirmed` / `forward-confirmed` / `inferred` 四级。它们是证据层级，不能被改写成量化效果结论。
 
 ## 容易误判的结构
 
@@ -53,7 +53,7 @@ fused QKV、fused gate/up 与拆分权重；GQA/MLA cache 与普通 MHA cache；
 
 ## Profile 辅助
 
-`scripts/preflight.py <profile-id> --config <checkpoint>/config.json --checkpoint <name-or-path> --source-revision <commit-or-tag>` 以指定 profile 为起点（省略 `profile-id` 时按 `model_type` 与 config 签名自动匹配，多义时报错要求显式指定），只把配置文件直接给出的字段标为 `config-confirmed`；由 head 数关系推导的 MHA/GQA 与由专家字段推导的 MoE 标为 `inferred`。`state-dict-confirmed` 与 `forward-confirmed` 分别由 `--state-dict-keys` 与 `--forward-manifest` 产生，只给 `--config` 时记录不会出现这两级。
+`scripts/preflight.py <profile-id> --config <checkpoint>/config.json --checkpoint <name-or-path> --source-revision <commit-or-tag>` 以指定 profile 为起点（profile 注册表已冻结、只做页面路由：省略 `profile-id` 时仅在已登记 profile 内按 `model_type` 与 config 签名匹配，未命中或多义即报错，须显式指定 `profile-id`，并用 `--list` 核对；不要新增 profile 适配新模型），只把配置文件直接给出的字段标为 `config-confirmed`；由 head 数关系推导的 MHA/GQA 与由专家字段推导的 MoE 标为 `inferred`。`state-dict-confirmed` 与 `forward-confirmed` 分别由 `--state-dict-keys` 与 `--forward-manifest` 产生，只给 `--config` 时记录不会出现这两级。
 
 ## 结果边界
 
@@ -69,7 +69,7 @@ fused QKV、fused gate/up 与拆分权重；GQA/MLA cache 与普通 MHA cache；
 | --- | --- |
 | 各组件的结构事实（attention 变体、FFN/gate、norm、residual、router、cache、connector） | [Components](../components/attention.md) 与同库各 component 页 |
 | 各范式的计算图与动态轴（AR / DiT / dLLM / MoE / SSM / Multimodal） | [Paradigms](../paradigms/ar.md) 与同库各 paradigm 页 |
-| 记录字段与非法候选过滤 | [量化前检查](quantization-preflight.md) |
+| 记录字段与候选排除判据 | [量化前检查](quantization-preflight.md) |
 | 目标 checkpoint 的真实结构 | 该 checkpoint 的 `config.json`、`modeling_*.py`、state_dict 与运行时 forward（本库不提供） |
 
 回答结构识别问题时必须说明用的是哪一级证据，并区分 config 声明值、state_dict/源码事实与运行时观测。

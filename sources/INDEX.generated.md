@@ -23,6 +23,7 @@
 - `paper-deepseek-v3` — [DeepSeek-V3 Technical Report](papers/paper-deepseek-v3.md)（被 5 个页面引用）
 - `paper-dit` — [Scalable Diffusion Models with Transformers](papers/paper-dit.md)（被 4 个页面引用）
 - `paper-gdn` — [Gated Delta Networks: Improving Mamba2 with Delta Rule](papers/paper-gdn.md)（被 2 个页面引用）
+- `paper-glm45` — [GLM-4.5: Agentic, Reasoning, and Coding (ARC) Foundation Models](papers/paper-glm45.md)（被 1 个页面引用）
 - `paper-kimi-linear` — [Kimi Linear: An Expressive, Efficient Attention Architecture](papers/paper-kimi-linear.md)（被 3 个页面引用）
 - `paper-latentmoe` — [LatentMoE: Toward Optimal Accuracy per FLOP and Parameter in Mixture of Experts](papers/paper-latentmoe.md)（被 2 个页面引用）
 - `paper-mamba` — [Mamba: Linear-Time Sequence Modeling with Selective State Spaces](papers/paper-mamba.md)（被 1 个页面引用）
@@ -39,6 +40,7 @@
 - `repo-attention-residuals` — [MoonshotAI/Attention-Residuals（AttnRes 官方资料仓库）](repos/repo-attention-residuals.md)（被 1 个页面引用）
 - `repo-deepseek-v3` — [deepseek-ai/DeepSeek-V3（官方推理实现、配置与权重转换）](repos/repo-deepseek-v3.md)（被 4 个页面引用）
 - `repo-dit` — [facebookresearch/DiT（DiT 官方实现）](repos/repo-dit.md)（被 3 个页面引用）
+- `repo-glm45` — [zai-org/GLM-4.5（官方权重与配置）](repos/repo-glm45.md)（被 1 个页面引用）
 - `repo-huggingface-transformers` — [huggingface/transformers（具体模型实现与量化接口）](repos/repo-huggingface-transformers.md)（被 13 个页面引用）
 - `repo-kimi-linear` — [MoonshotAI/Kimi-Linear（Kimi Linear 官方技术报告仓库）](repos/repo-kimi-linear.md)（被 2 个页面引用）
 - `repo-llada` — [ML-GSAI/LLaDA（LLaDA 官方仓库：推理与评测脚本）](repos/repo-llada.md)（被 2 个页面引用）

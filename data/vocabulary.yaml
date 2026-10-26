@@ -56,53 +56,101 @@
     "routing",
     "state-update"
   ],
-  "alias_expansions": {
-    "attention": [
-      "component-attention"
+  "index_groups": {
+    "title": "按结构特征检索",
+    "exclude_types": [
+      "check"
     ],
-    "mha": [
-      "component-attention"
-    ],
-    "gqa": [
-      "component-attention"
-    ],
-    "mla": [
-      "component-attention",
-      "model-deepseek"
-    ],
-    "linear-attention": [
-      "paradigm-linear-attention",
-      "model-kimi-linear"
-    ],
-    "ssm": [
-      "paradigm-ssm",
-      "model-mamba2"
-    ],
-    "moe": [
-      "paradigm-moe",
-      "component-router-expert"
-    ],
-    "dllm": [
-      "paradigm-dllm",
-      "model-llada"
-    ],
-    "dit": [
-      "paradigm-dit"
-    ],
-    "mhc": [
-      "component-residual-mhc"
-    ],
-    "kv-cache": [
-      "component-kv-cache"
-    ],
-    "rmsnorm": [
-      "component-normalization"
-    ],
-    "rope": [
-      "component-position-encoding"
-    ],
-    "attnres": [
-      "component-attention-residuals"
+    "groups": [
+      {
+        "label": "范式（AR / DiT / dLLM）",
+        "tags": [
+          "ar",
+          "dit",
+          "dllm"
+        ]
+      },
+      {
+        "label": "注意力布局",
+        "tags": [
+          "attention",
+          "mha",
+          "gqa",
+          "mla"
+        ]
+      },
+      {
+        "label": "位置编码",
+        "tags": [
+          "rope"
+        ]
+      },
+      {
+        "label": "归一化与嵌入",
+        "tags": [
+          "normalization",
+          "rmsnorm",
+          "embedding",
+          "lm-head"
+        ]
+      },
+      {
+        "label": "MLP 与门控激活",
+        "tags": [
+          "mlp",
+          "swiglu",
+          "geglu"
+        ]
+      },
+      {
+        "label": "MoE 路由与专家",
+        "tags": [
+          "moe",
+          "latent-moe",
+          "routing"
+        ]
+      },
+      {
+        "label": "线性注意力与 SSM",
+        "tags": [
+          "linear-attention",
+          "ssm",
+          "mamba",
+          "gdn",
+          "state-update"
+        ]
+      },
+      {
+        "label": "残差与超连接",
+        "tags": [
+          "residual",
+          "mhc",
+          "attnres"
+        ]
+      },
+      {
+        "label": "KV cache 与部署接口",
+        "tags": [
+          "kv-cache",
+          "deployment",
+          "packing"
+        ]
+      },
+      {
+        "label": "扩散与掩码生成阶段",
+        "tags": [
+          "diffusion",
+          "timestep",
+          "mask-state"
+        ]
+      },
+      {
+        "label": "多模态连接",
+        "tags": [
+          "multimodal",
+          "multimodal-connector"
+        ]
+      }
     ]
   },
   "source_topics": [

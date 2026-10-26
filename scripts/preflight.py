@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
-from wiki_common import ROOT, sources
+from wiki_common import ROOT, pages as pages_of, sources
 
 PROFILE_FILE = ROOT / "data" / "architecture-profiles.json"
 
@@ -18,78 +18,99 @@ CHECKS = {
     "autoregressive": (
         "prefill/decode 激活与 cache 误差可能不同",
         "按短/长上下文分别比较 prefill、decode、cache 读写输出",
-        "将 prefill、decode 与 cache 作为独立校准和验证轴",
+        ("paradigm-ar",),
     ),
     "mla": (
         "latent 压缩、恢复和 latent cache 的误差路径不同于普通 K/V cache",
         "从目标实现记录 latent 维度、cache layout，并比较 attention 输出与长上下文结果",
-        "按实际 MLA 路径拆分观察点；后端不支持时排除此候选格式",
+        ("component-attention", "model-deepseek"),
     ),
     "moe": (
         "router 微小误差可能改变 top-k，专家覆盖也可能不均衡",
         "记录量化前后 token-to-expert 映射、专家访问直方图和专家输出误差",
-        "router 与专家分别评估，并按实际 kernel 能力过滤专家量化配置",
+        ("paradigm-moe", "component-router-expert"),
     ),
     "diffusion-timestep": (
         "不同 timestep/noise level 可能产生不同激活分布",
         "沿实际采样轨迹分层采集早、中、晚阶段激活和逐步输出",
-        "把 timestep/noise level 纳入校准覆盖，并用端到端生成质量验证",
+        ("component-diffusion-timestep", "paradigm-dit"),
     ),
     "attention": (
         "投影、softmax 与输出路径的误差可能不同",
         "按目标 attention 实现比较投影输出、attention 输出和最终 logits",
-        "先确认融合/拆分边界及 kernel 支持，再决定量化粒度",
+        ("component-attention",),
+    ),
+    "rope": (
+        "旋转位置编码的相位与频率若在量化或融合中改变，注意力打分随之变化",
+        "核对 theta、维度切分方式与 cache 中是否已应用，比较旋转前后 Q/K 与 attention 输出",
+        ("component-position-encoding",),
+    ),
+    "rmsnorm": (
+        "归一化统计与 scale 的融合边界会改变后续激活分布",
+        "记录 epsilon、是否与相邻线性层融合及量化位置，比较 norm 输出与紧邻投影误差",
+        ("component-normalization",),
+    ),
+    "swiglu": (
+        "gate/up 与激活的取值范围不同，统一缩放可能让其中一路过冲",
+        "记录 gate/up/down 的拆分与融合方式，分别比较 gate、激活后与 down 输出误差",
+        ("component-mlp",),
+    ),
+    "residual": (
+        "跨层残差累加会放大逐层舍入误差",
+        "核对残差相加位置与写回精度，比较逐层 hidden state 与最终输出误差",
+        ("component-residual-mhc", "component-attention-residuals"),
     ),
     "mha": (
         "各 query head 有独立 K/V 路径，统一缩放可能掩盖 head 间分布差异",
         "记录 q/kv head 数与 head_dim，比较各投影和 attention 输出误差",
-        "先按实际投影融合和 kernel 契约确定可量化边界",
+        ("component-attention",),
     ),
     "gqa": (
         "多个 query head 共享 KV head，量化误差可能在共享路径上被放大",
         "确认 q_heads/kv_heads 映射、cache shape/layout，并测量各 query group 输出差异",
-        "按共享 KV 的真实边界校准和验证，确保 cache kernel 支持目标格式",
+        ("component-attention", "component-kv-cache"),
     ),
     "masked-diffusion": (
         "logit 误差可能改变位置置信度排序和后续 mask 轨迹",
         "固定 sampler，逐步比较 logits、位置选择、mask 状态和最终输出",
-        "按 mask ratio、迭代 step、更新块和序列长度分层校准验证",
+        ("paradigm-dllm", "component-diffusion-timestep"),
     ),
     "autoregressive-transformer-backbone": (
         "Transformer 主干存在多条独立投影与残差误差路径",
         "以目标 checkpoint 的 module tree、state dict 和 reference forward 核对模块边界",
-        "按真实模块路径生成候选；未确认的模块保持 unknown",
+        ("paradigm-ar",),
     ),
     "multimodal-vision": (
         "视觉编码器、connector 与语言主干的分布可能不同",
         "按分辨率/帧数分层检查视觉 token、connector 输出和端到端多模态结果",
-        "分别评估 encoder、connector、语言主干，并过滤不支持的输入路径",
+        ("component-multimodal-connector", "paradigm-multimodal"),
     ),
     "mrope": (
         "多模态位置与时间/空间索引错误可能改变跨模态注意力行为",
         "核对 position ids、模态边界、图像 grid/视频时间索引及 attention mask",
-        "将图像、视频、文本及组合输入分开做 reference 与后端对比",
+        ("component-position-encoding", "model-qwen2-vl"),
     ),
     "linear-state": (
         "递推 state 的舍入误差可能随序列累积，并在 chunk/reset 边界变化",
         "记录 state dtype/layout，比较短长序列、chunk 边界、连续 decode 和 reset 输出",
-        "state/update/readout 分开评估，目标后端缺少对应 state kernel 时排除候选",
+        ("paradigm-ssm", "paradigm-linear-attention"),
     ),
 }
 
 
-def make_checklist(features: list[str]) -> list[dict[str, str]]:
+def make_checklist(features: list[str]) -> list[dict[str, object]]:
+    """把一个结构特征转成“该读哪些页面 + 待核实项”，不产出候选方案。"""
     checklist = []
     for feature in features:
         if feature not in CHECKS:
             raise ValueError(f"no preflight rule for feature: {feature}")
-        risk, method, action = CHECKS[feature]
+        risk, method, pages = CHECKS[feature]
         checklist.append({
             "feature": feature,
+            "pages": list(pages),
             "potential_risk": risk,
             "check_method": method,
-            "candidate_action": action,
-            "validation_status": "待实验验证",
+            "validation_status": "待核实",
         })
     return checklist
 
@@ -138,7 +159,10 @@ def select_profile(
         return signature_matches[0]
     if len(signature_matches) > 1:
         raise ValueError("config matches multiple architecture signatures; pass a profile ID")
-    raise ValueError(f"no profile matches model_type {model_type!r}; inspect profiles with --list")
+    raise ValueError(
+        f"no profile matches model_type {model_type!r}; the profile registry is frozen (page routing only) — "
+        "pass an explicit profile ID (see --list) instead of adding a new profile"
+    )
 
 
 def build_preflight(profile: dict[str, object]) -> dict[str, object]:
@@ -194,8 +218,8 @@ def build_preflight(profile: dict[str, object]) -> dict[str, object]:
     }
 
 
-def compact_preflight(record: dict[str, object]) -> dict[str, object]:
-    """Return the small evidence-aware view intended for Agent context."""
+def quantization_view(record: dict[str, object]) -> dict[str, object]:
+    """Return the quantization-stage view intended for Agent context."""
     runtime_classes = {"config-confirmed", "state-dict-confirmed", "forward-confirmed", "inferred"}
     runtime_evidence = [item for item in record["evidence"] if item["classification"] in runtime_classes]
     selected_evidence = runtime_evidence or record["evidence"]
@@ -671,11 +695,23 @@ def validate_preflight(record: dict[str, object]) -> list[str]:
         if item["classification"] not in {"source-reported", "source-confirmed", "config-confirmed", "state-dict-confirmed", "forward-confirmed", "inferred", "unknown"}:
             errors.append(f"invalid evidence classification: {item['classification']}")
     for item in record.get("checklist", []):
-        if not isinstance(item, dict) or set(item) != {"feature", "potential_risk", "check_method", "candidate_action", "validation_status"}:
+        if not isinstance(item, dict) or set(item) != {"feature", "pages", "potential_risk", "check_method", "validation_status"}:
             errors.append("checklist entry is incomplete")
             continue
-        if item["validation_status"] != "待实验验证":
-            errors.append("unvalidated quantization risks must remain marked 待实验验证")
+        if item["validation_status"] != "待核实":
+            errors.append("unvalidated structure items must remain marked 待核实")
+        pages = item["pages"]
+        if not isinstance(pages, list) or not pages or not all(isinstance(page, str) and page for page in pages):
+            errors.append("checklist pages must be a non-empty list of page IDs")
+        else:
+            try:
+                known = {page.meta["id"] for page in pages_of(ROOT)}
+            except ValueError as exc:
+                errors.append(f"cannot load pages: {exc}")
+            else:
+                unknown = [page for page in pages if page not in known]
+                if unknown:
+                    errors.append(f"checklist references unregistered pages: {unknown}")
     if not isinstance(record.get("required_runtime_confirmation"), list):
         errors.append("required_runtime_confirmation must be a list")
     return errors
@@ -739,7 +775,8 @@ def main() -> int:
     parser.add_argument("--state-dict-keys", type=Path, help="JSON key list, HF index JSON, or newline-delimited state-dict key manifest")
     parser.add_argument("--forward-manifest", type=Path, help="JSON reference-forward observation manifest with an observations list")
     parser.add_argument("--strict-runtime", action="store_true", help="fail unless runtime structure evidence is complete enough for quantization")
-    parser.add_argument("--compact", action="store_true", help="emit a smaller context view for an Agent after validation")
+    parser.add_argument("--quantization-view", action="store_true",
+                        help="emit the quantization-stage view for an Agent; not necessarily smaller than the default record")
     args = parser.parse_args()
     profiles = load_profiles()
     if args.list:
@@ -792,7 +829,7 @@ def main() -> int:
             print("strict runtime preflight blocked:", file=sys.stderr)
             print("\n".join(f"- {gap}" for gap in gaps), file=sys.stderr)
             return 3
-    output = compact_preflight(result) if args.compact else result
+    output = quantization_view(result) if args.quantization_view else result
     print(json.dumps(output, ensure_ascii=False, indent=2))
     return 0
 

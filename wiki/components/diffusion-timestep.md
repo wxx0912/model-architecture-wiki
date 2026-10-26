@@ -25,7 +25,7 @@
   "confidence": "source-reported",
   "evidence_scope": "mixed",
   "aliases": [],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -68,12 +68,15 @@
 
 - DiT 把 timestep 与类别条件之和送进 adaLN MLP（SiLU + Linear），输出 4×/6× hidden；adaLN-Zero 把 `adaLN_modulation` 的**末层 Linear**（以及 `final_layer` 的调制末层与线性层）零初始化。
 - dLLM 的 mask ratio / step 是**离散**调度变量，反向过程分 `N` 步、逐位置重新掩码。
-- 范围事实：三份来源都不含量化、低比特或激活范围统计。
 
 **量化推断**
 
 - timestep/noise 或 mask/step 都可能改变激活分布，但属于不同架构语义，校准轴不可互换。
 - 校准集应按目标模型分别记录连续去噪轴或离散 mask/迭代轴；单个 timestep 或单个 mask ratio 的局部误差都不能代表完整采样轨迹。
+
+**未知项**
+
+- 三份来源都不含量化、低比特或激活范围统计。
 
 ## 结果边界
 

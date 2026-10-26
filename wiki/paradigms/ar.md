@@ -28,7 +28,7 @@
     "decoder-only",
     "自回归"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -49,14 +49,14 @@ p(x) = Π_{t=1..T} p(x_t | x_{<t})
 因果 mask 保证位置 `t` 看不到 `t` 之后的 token，因此整段可以一次前向、并行计算所有位置的损失。生成分两个阶段：
 
 - **prefill**：把整段 prompt 一次送进模型，为每层写入 K/V（或该变体对应的压缩状态），产出第一个新 token；
-- **decode**：每步只把新 token 送进模型，只算它的 query，K/V 从 cache 读取，每步吐 1 个 token。
+- **decode**：每步只把新 token 送进模型，当前 token 计算 Q/K/V，新的 K/V 追加进 cache，Q 与 cache 中的历史 K/V 做 attention，每步吐 1 个 token。
 
 运行时状态就是 KV cache 加上当前长度：每个 token 的 cache 增量由 attention 变体决定（MHA/GQA/MLA 的差异见 [Attention](../components/attention.md)，layout 与更新见 [KV Cache](../components/kv-cache.md)）。停止条件是生成 `EOS` 或到达长度上限；采样方式（greedy / temperature / top-k / top-p / beam）不改变结构，但会改变激活分布。
 
 | 维度 | prefill | decode |
 | --- | --- | --- |
 | 输入 | 整段 prompt `[B, T]` | 每步 1 个新 token `[B, 1]` |
-| attention | 整段参与，一次算出全部位置的输出 | 只算新 token 的 query，历史 K/V 从 cache 读 |
+| attention | 整段参与，一次算出全部位置的输出 | 算新 token 的 Q/K/V，Q 与历史（含本步新增）K/V 做 attention |
 | 对 cache 的动作 | 写入本层 K/V | 动态缓存追加 1 个位置并读全量历史；预分配（static）或滑窗实现的行为不同 |
 | 产出 | 第一个新 token | 每步 1 个 token |
 

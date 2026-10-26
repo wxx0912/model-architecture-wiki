@@ -28,7 +28,7 @@
     "diffusion lm",
     "扩散语言模型"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -38,7 +38,7 @@
 
 LLaDA 是从零训练的 masked diffusion 语言模型，论文含 1B 与 8B 两档。主干与 LLaMA 同类（RMSNorm + SwiGLU + RoPE），但改用非因果注意力、与 KV caching 不兼容（论文原话；由非因果注意力所致为本库推断）；它是 dLLM 范式在 8B 规模上的实例，本页给论文口径的规格与这个模型的量化相关事实。
 
-## 结构规格
+## 结构规格表
 
 论文附录 Table 5 给出两档配置（同表还列了 1B/7B ARM baseline 与 LLaMA3 8B 作对照）：
 
@@ -51,6 +51,8 @@ LLaDA 是从零训练的 masked diffusion 语言模型，论文含 1B 与 8B 两
 | FFN dim | 5634 | 12,288 |
 | 词表 | 126,464 | 126,464 |
 | 总参 | 1.49B | 8.02B |
+
+表中数值是论文 Table 5 口径，不是目标 checkpoint 的配置；引用具体 checkpoint 时必须回到其 `config.json` 与 `modeling_*.py`。
 
 除此之外，论文正文说明 LLaDA 使用非因果注意力、与 KV caching 不兼容（"因此没有 KV cache"为本库推断；这一项不在 Table 5 中）。引用规格时有两点要留意：
 
@@ -67,13 +69,17 @@ LLaDA 用双向可见的 mask predictor 取代因果解码：文本经 embedding
 
 **结构事实**
 
-- LLaDA 没有 KV cache；每一步是整段非因果前向；主干组件为 RMSNorm / SwiGLU / RoPE。
-- 范围事实：论文与官方仓库都没有量化实现，论文只在附录给出吞吐 / 显存对照（吞吐实验为 bf16）。
+- LLaDA 不使用 causal mask，每一步把整段序列过主干；主干组件为 RMSNorm / SwiGLU / RoPE。
 
 **量化推断**
 
+- 论文称非因果注意力与 KV caching 不兼容，本库据此推断它没有增量解码路径，推理期显存不随生成步数增长。
 - 校准与误差传播的通用路径见 [Diffusion Language Model](../paradigms/dllm.md)，本页只补 LLaDA 自身的条件。
 - 论文的精度对照是 LLaMA3 8B 这类不同架构、不同训练量的模型，且训练数据未公开；拿它当量化基线时要单独说明条件，不能当作同架构对照。
+
+**未知项**
+
+- 论文与官方仓库都没有量化实现，论文只在附录给出吞吐 / 显存对照（吞吐实验为 bf16）。
 
 ## 结果边界
 

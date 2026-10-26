@@ -25,10 +25,9 @@
   "evidence_scope": "mixed",
   "aliases": [
     "mixture of experts",
-    "mixture-of-experts",
     "混合专家"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -75,14 +74,20 @@ hidden [N, d] → router scores [N, E] → top-k → dispatch（按专家分组�
 
 - router 输出是**离散选择**（top-K），专家是否参与计算由它决定；`combine` 按 routing weight 加权。
 - DeepSeek-V2 用 device-limited routing + 三类辅助损失 + 训练期 token dropping（容量因子 1.0）；DeepSeek-V3 用 sigmoid affinity、专家 bias 只参与 top-K 选择、node-limited routing，且不丢 token。
+
+**实现事实**（来自固定版本源码，须按该 revision 核对）
+
 - DeepSeek-V3 官方推理实现含 fp8 路径（`act_quant` 激活量化 + `fp8_gemm`）；671B 配置为 256 路由专家 + 1 共享、每 token 激活 8 个。
-- 范围事实：五份来源都不含量化精度的完整对比；例外是 DeepSeek-V3 用 FP8 vs BF16 相对损失误差 <0.25% 验证其 FP8 训练框架。
 
 **量化推断**
 
 - router 分数的微小变化会造成离散专家切换，不能只用 router 输出的 MSE 评价。
 - dispatch/combine 的索引、权重与通信必须保持精确语义；专家权重与激活应按专家访问分布校准。
 - fused grouped GEMM 的 group size、packing、scale layout 与专家维度是导出前硬约束。
+
+**未知项**
+
+- 五份来源都不含量化精度的完整对比；例外是 DeepSeek-V3 用 FP8 vs BF16 相对损失误差 <0.25% 验证其 FP8 训练框架。
 
 ## 结果边界
 

@@ -28,7 +28,7 @@
     "root mean square normalization",
     "均方根归一化"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 

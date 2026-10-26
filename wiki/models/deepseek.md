@@ -31,7 +31,7 @@
     "multi-head latent attention",
     "多头潜在注意力"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -54,6 +54,7 @@ DeepSeek-V2/V3 是 decoder-only 自回归模型，两个标志性结构是 **MLA
 | 上下文 | 128K | 128K |
 
 V2-Lite（附录 B）为 15.7B / 2.4B、27 层、hidden 2048、16 head、`d_c=512`、`d_h^R=64`、2 共享 + 64 路由（中间维 1408），与完整版的差别之一是**不压缩 query**。V2 列的论文符号与 V3 列的 config 字段一一对应：`d_c↔kv_lora_rank`、`d'_c↔q_lora_rank`、`d_h↔qk_nope_head_dim`、`d_h^R↔qk_rope_head_dim`（V2 的 query 压缩维为 `d'_c=1536`，只有 V2-Lite 不压缩 query）。按 `q_lora_rank` 是否大于 0 可区分是否压缩 query；按 `n_routed_experts`/`n_shared_experts`/`n_activated_experts` 可区分 16B-Lite / 236B / 671B。
+表中两列分别取自论文与官方 `configs/*.json`；引用具体 checkpoint 时必须用目标 `config.json` 核对，本表不能替代。
 
 ## 结构与数据流
 
@@ -68,16 +69,24 @@ V2-Lite（附录 B）为 15.7B / 2.4B、27 层、hidden 2048、16 head、`d_c=51
 
 **结构事实**
 
-- MLA 的 cache 对象是压缩向量 buffer `kv_cache`（`kv_lora_rank` 维）与 `pe_cache`（`qk_rope_head_dim` 维），不是完整 K/V；只有 `attn_impl="naive"` 才注册完整 `k_cache`/`v_cache`。
-- V2 部署期把参数转 FP8，并把 KV cache 平均压到 6 bit（引用外部方法），论文未给精度影响/校准方法。
+- MLA 推理只缓存压缩向量（`kv_lora_rank` 维）与跨头共享的解耦 key（`qk_rope_head_dim` 维），不是完整 K/V。
+- V2 部署期把参数转 FP8，并把 KV cache 平均压到 6 bit（引用外部方法）。
 - V3 的 FP8 训练契约：激活 `1x128` tile、权重 `128x128` block 分组缩放；MoE SwiGLU 输入 FP8 缓存、上投影激活与下投影激活梯度各自量化成 FP8 通信、`combine` 保持 BF16，MoE gating 保高精度。
-- 官方推理实现含 fp8 路径（`act_quant` + `fp8_gemm`）。
 
-**量化推断（本库推断）**
+**实现事实**（来自固定版本源码，须按该 revision 核对）
+
+- 官方推理实现含 fp8 路径（`act_quant` + `fp8_gemm`）。
+- 官方推理实现用 `kv_cache` / `pe_cache` 两个 buffer 承载上述缓存，只有 `attn_impl="naive"` 才注册完整 `k_cache`/`v_cache`。
+
+**量化推断**
 
 - MLA latent cache 与 MHA/GQA 的 K/V cache 语义不同，量化对象与后端 kernel 需按实现分别定义。
 - 专家访问频率不均，需要 per-expert 覆盖；router top-k 变化应与专家 MLP 输出误差分开测量。
 - MTP 分支若保留在推理图中应独立检查其权重与输出；若仅用于训练，则不是推理量化对象。
+
+**未知项**
+
+- 论文未给 V2 部署量化的精度影响、校准方法与逐层结论。
 
 ## 结果边界
 

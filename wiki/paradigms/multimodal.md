@@ -28,7 +28,7 @@
     "vision language model",
     "多模态"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -65,6 +65,9 @@ raw modality → encoder → resampler / projector（connector） → modality t
 **结构事实**
 
 - 模态 encoder、connector 与语言主干是分开的模块，输入分布不同；视觉 token 的数量随分辨率变化。
+
+**实现事实**（来自固定版本源码，须按该 revision 核对）
+
 - Qwen2-VL 的输入端预处理（resize、`min_pixels`/`max_pixels` 一类像素约束）在 `qwen-vl-utils` 里，建模代码在 transformers 的 `models/qwen2_vl/` 下——两者是不同来源。
 
 **量化推断**

@@ -26,7 +26,7 @@
     "attention residual",
     "注意力残差"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -73,13 +73,16 @@ k_i = v_i = h_1（token embedding）或 f_i(h_i)（第 i 层输出）
 
 - 每层新增一个 RMSNorm（作用在 key 上）、一个 `w_l ∈ R^d` 伪 query，以及一组 `Σα = 1` 的跨层 softmax 权重。
 - 推理期每 token 额外持有 `N` 个 `d` 维块表示（Block 的固定 `N` 界定了这部分运行时状态的大小）；论文例子里 128K token、8 block 的 prefill 约需 15 GB，按序列维切到 `P` 个 TP 设备后约 1.9 GB/设备。
-- 范围事实：论文不含量化、低比特、激活/权重数值分布统计；官方仓库在所读 commit 下**没有代码**。
 
 **量化推断**
 
 - 历史表示 cache、softmax 聚合权重、跨层聚合与 block 边界是新的误差传播路径。
 - 量化不能只看当前层的 attention/FFN：应观察历史 state、聚合 logits/weights、聚合输出与跨层误差累积。
 - block 表示的缓存精度、内存布局与通信 kernel 是部署约束；论文的结构结论不等于已有低比特 kernel 支持。
+
+**未知项**
+
+- 论文不含量化、低比特、激活/权重数值分布统计；官方仓库在所读 commit 下**没有代码**。
 
 ## 结果边界
 

@@ -28,7 +28,7 @@
     "线性注意力",
     "linear attention"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -51,6 +51,8 @@ Kimi Linear 是混合注意力语言模型：**Kimi Delta Attention（KDA）** �
 | MoE | 每 token 激活 256 中的 8 个（7 路由 + 1 共享） |
 | 上下文 | 论文主实验 1.4T token / 4k（Table 3/4 的短上下文口径）；另有 128k 长上下文结果（Table 5）；发布 checkpoint 训到 5.7T token、支持 1M |
 
+表中数值是论文与发布 checkpoint 的口径；目标 checkpoint 的层数、头数、state 维度与 chunk size 以该 checkpoint 的 `config.json` 与所用 kernel 实现为准，本表不能替代。
+
 ## 结构与数据流
 
 KDA 递推（§3，Eq.1）：
@@ -69,13 +71,16 @@ KDA 是**受限 DPLR**（§3.2、§6.1–6.3）：取 `D = Diag(α_t)`、`a_t = 
 
 - KDA 的 state 固定为 `d_k×d_v` / head、不随序列增长；推理时模型同时维护 KDA 线性状态与 MLA KV cache 两类运行时状态。
 - 论文多处讨论**数值精度 / 稳定性**：细粒度衰减的除法需要全精度二级 chunking、累计衰减倒数 `1/Γ` 可能不稳定、q/k 的 L2Norm 用于特征值稳定、训练/推理引擎精度不匹配会拖垮 RL。
-- 范围事实：论文不含量化或低比特实验；官方仓库本身不含代码。
 
-**量化推断（本库推断）**
+**量化推断**
 
 - state 误差随序列递推，校准与验证必须覆盖长序列、chunk 边界与连续 decode。
 - gate、delta update、state readout 与 MLA cache 是不同数值路径，需分别量化和诊断。
 - 混合层结构支持按层型分组评估，但任何层型专用 bit 配置都要通过目标 kernel / 导出契约验证。
+
+**未知项**
+
+- 论文不含量化或低比特实验；官方仓库本身不含代码。
 
 ## 结果边界
 

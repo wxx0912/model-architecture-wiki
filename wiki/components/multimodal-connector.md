@@ -22,7 +22,7 @@
   "confidence": "source-reported",
   "evidence_scope": "mixed",
   "aliases": [],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -60,15 +60,21 @@ Qwen2-VL（§2.1）沿用 `vision encoder → connector → LLM` 范式，LLM �
 **结构事实**
 
 - 模态 encoder、connector 与语言主干是分开的模块；视觉 token 数随分辨率变化（Qwen2-VL 用 2×2 MLP 压缩）。
-- encoder、connector 与主干的输入分布通常不同（工程归纳，非 Qwen2-VL 论文结论）。
+
+**实现事实**（来自固定版本源码，须按该 revision 核对）
+
 - Qwen2-VL 的输入端预处理在 `qwen-vl-utils`（resize / `min_pixels` / `max_pixels`），建模代码在 transformers 的 `models/qwen2_vl/`——两者是不同来源。
-- 范围事实：Qwen2-VL 的论文与仓库都不含量化实验（`repo-qwen2-vl` 记录上游发布过 Qwen2.5-VL 的 AWQ 与 Qwen2-VL-72B 的 AWQ/GPTQ 权重，属已训练权重的发布，不是量化实验或误差分析）。
 
 **量化推断**
 
 - encoder 与主干的动态范围和误差目标不同，连接处应设置独立校准边界。
+- encoder、connector 与主干的输入分布通常不同，应分别校准（本库归纳，非来源结论）。
 - connector 的误差可能造成跨模态语义错位，即使主干逐层误差很小也可能影响任务结果。
 - 量化候选必须受目标后端支持的输入 shape、layout、dtype 与跨设备拷贝限制约束。
+
+**未知项**
+
+- Qwen2-VL 的论文与仓库都不含量化实验（`repo-qwen2-vl` 记录上游发布过 Qwen2.5-VL 的 AWQ 与 Qwen2-VL-72B 的 AWQ/GPTQ 权重，属已训练权重的发布，不是量化实验或误差分析）。
 
 ## 结果边界
 

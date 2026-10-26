@@ -28,7 +28,7 @@
     "key value cache",
     "键值缓存"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -36,7 +36,7 @@
 
 ## 一句话理解
 
-自回归 decode 每步只来一个新 token，若每步都在整段上下文上重算 attention，单步代价是 `O(n²d)`（每层，`n` 为当前序列长；§4 Table 1 给的是逐层 self-attention 复杂度 `O(n²·d)`，“单步已重算”是其直接推导）。KV cache 把历史 K/V 存下来、每步只算新 token 的 query 再读缓存，把解码时的重复计算换成了**随序列增长的运行时显存**。线性 attention / SSM 维护的是另一种固定大小的递推状态，不应称为普通 KV cache。
+自回归 decode 每步只来一个新 token，若每步都在整段上下文上重算 attention，单步代价是 `O(n²d)`（每层，`n` 为当前序列长；§4 Table 1 给的是逐层 self-attention 复杂度 `O(n²·d)`，“单步已重算”是其直接推导）。KV cache 把历史 K/V 存下来，每步只算新 token 的 Q/K/V 并把新 K/V 追加进缓存，避免重算历史 K/V，把解码时的重复计算换成了**随序列增长的运行时显存**。线性 attention / SSM 维护的是另一种固定大小的递推状态，不应称为普通 KV cache。
 
 ## 结构与数据流
 

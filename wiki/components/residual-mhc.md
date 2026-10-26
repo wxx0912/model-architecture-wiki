@@ -23,7 +23,7 @@
     "manifold-constrained hyper-connections",
     "hyper-connections"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -73,6 +73,9 @@ H^res ∈ { H ∈ R^{n×n} : H·1 = 1, 1ᵀ·H = 1ᵀ, H ≥ 0 }   # 双随机 /
 
 - 多流 residual 引入 `H^res`（`n×n`）、`H^pre/H^post` 三类系数张量及其激活、Sinkhorn 迭代与反向重算路径。
 - mHC 的精度策略（§4.3.1，Eq.10–19）：`φ` 用 **tfloat32**、`vec(x_l)` 用 **bfloat16**，偏置 / 门控标量 / 系数用 **float32**。
+
+**实现事实**（来自固定版本源码，须按该 revision 核对）
+
 - `repo-tile-kernels` 在 `tile_kernels/mhc/` 提供 9 个 kernel 模块（含 `mhc_sinkhorn_fwd/bwd`，`repeat`/`eps` 为显式参数），分 NVIDIA 与 Ascend 两套后端——属官方 kernel 实现。
 
 **量化推断**

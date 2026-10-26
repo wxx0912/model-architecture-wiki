@@ -23,7 +23,7 @@
   "confidence": "inferred",
   "evidence_scope": "mixed",
   "aliases": [],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -64,7 +64,7 @@ Multi-Head LatentMoE 建立在 NVIDIA LatentMoE 之上（把通信从"路由之�
 - NVIDIA 变体压的是**专家输入维**：routed 专家权重在 latent 空间（`W_FC1, W_gate ∈ R^{m×ℓ}`、`W_FC2 ∈ R^{ℓ×m}`），router 与 shared 专家仍在 `d` 维。
 - Multi-Head 变体把 token 投影切成 `N_h` 个 `d_h` 维子 token（惯例 `N_h·d_h = d`），每个子 token 有自己的 router 与专家，router 作用在 `d_h` 维。
 
-**量化推断（本库推断）**
+**量化推断**
 
 - 压缩/恢复投影会把量化误差从 latent 空间映射回主干空间，两个投影不能只看单层误差。
 - latent 分布可能比 residual stream 更窄或更尖，需单独选择校准轴与 scale，不能套用原维 dense FFN 的默认值。

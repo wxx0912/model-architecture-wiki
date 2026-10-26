@@ -107,36 +107,40 @@ def sources(root=ROOT):
     return registry
 
 
-def alias_pages(vocab, key):
-    """检索别名展开表：把问题级别名键映射到页面 ID。"""
-    return vocab.get("alias_expansions", {}).get(key, [])
+def _normalize(text):
+    """比较用归一化：折叠大小写，标点、分隔符与下划线转空格，压平空白。"""
+    return re.sub(r"\s+", " ", re.sub(r"[\W_]+", " ", text.casefold())).strip()
 
 
-def search(records, query="", tag=None, kind=None, limit=10, ids=None):
-    terms = query.casefold().split()
-    rows = []
-    for page in records:
-        meta = page.meta
-        if tag and tag not in meta["tags"]:
-            continue
-        if kind and kind != meta["type"]:
-            continue
-        if ids is not None and meta["id"] not in ids:
-            continue
-        names = [meta["id"], meta["title"], *meta["aliases"]]
-        name_text = " ".join(names).casefold()
-        tags = " ".join(meta["tags"]).casefold()
-        haystack = " ".join([name_text, tags, page.body.casefold()])
-        if not all(term in haystack for term in terms):
-            continue
-        exact = bool(query) and query.casefold() in [name.casefold() for name in names]
-        score = 100 * exact + sum(10 * (term in name_text) + 3 * (term in tags) + (term in haystack)
-                                  for term in terms)
-        if ids is not None:
-            score += 1000 - 10 * ids.index(meta["id"])
-        rows.append((score, page))
-    rows.sort(key=lambda row: (-row[0], row[1].meta["id"]))
-    return rows[:limit]
+def search(records, query="", tag=None, kind=None, limit=10):
+    """先按名称、别名与标签检索；没有命中再退回正文，退回的条目为弱相关。
+
+    返回 (score, page, weak) 列表；weak 为真表示整批结果都是正文提及。
+    """
+    terms = _normalize(query).split()
+    for include_body in (False, True):
+        rows = []
+        for page in records:
+            meta = page.meta
+            if tag and tag not in meta["tags"]:
+                continue
+            if kind and kind != meta["type"]:
+                continue
+            names = [_normalize(name) for name in [meta["id"], meta["title"], *meta["aliases"]]]
+            name_text = " ".join(names)
+            tag_text = _normalize(" ".join(meta["tags"]))
+            haystack = " ".join([name_text, tag_text,
+                                 _normalize(page.body) if include_body else ""])
+            if not all(term in haystack for term in terms):
+                continue
+            exact = bool(query) and _normalize(query) in names
+            score = 100 * exact + sum(10 * (term in name_text) + 3 * (term in tag_text) + (term in haystack)
+                                      for term in terms)
+            rows.append((score, page, include_body))
+        if rows or include_body:
+            rows.sort(key=lambda row: (-row[0], row[1].meta["id"]))
+            return rows[:limit]
+    return []
 
 
 def _field_errors(spec, meta, vocab, label, rules):
@@ -169,7 +173,8 @@ def _field_errors(spec, meta, vocab, label, rules):
                 errors.append(f"{date_rule} {label}: {field} 日期非法 {value!r}")
             continue
         if kind == "array":
-            if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
+            if (not isinstance(value, list) or (rule.get("non_empty") and not value)
+                    or not all(isinstance(item, str) and item for item in value)):
                 errors.append(f"{array_rule} {label}: {field} 必须为非空字符串数组")
                 continue
             if len(set(value)) != len(value):
@@ -270,6 +275,10 @@ def validate(root=ROOT):
             errors.append(f"P7 {label}: 正文缺少一级标题")
         if not meta.get("sources"):
             errors.append(f"P8 {label}: sources 不得为空")
+        aliases = [_normalize(item) for item in meta.get("aliases") or [] if isinstance(item, str)]
+        repeated = sorted({item for item in aliases if aliases.count(item) > 1})
+        if repeated:
+            errors.append(f"P10 {label}: aliases 归一化后重复 {repeated}")
     for page in records:
         label = page.path.relative_to(root).as_posix()
         related = page.meta.get("related")
@@ -308,6 +317,13 @@ def validate(root=ROOT):
             if line.startswith("| `"):
                 errors.append(f"S11 {path.relative_to(root).as_posix()}:{number}: 来源目录下不得使用来源表格")
 
+    # 分组里的标签必须真的被页面使用；标签本身不要求入组（总分类与跨切面标签由“按机制标签”一节覆盖）。
+    grouped = {tag for group in (vocab.get("index_groups") or {}).get("groups") or []
+               if isinstance(group, dict) for tag in group.get("tags") or []}
+    used = {tag for page in records for tag in page.meta.get("tags") or []}
+    for tag in sorted(grouped - used):
+        warnings.append(f"P11 索引分组引用的标签没有页面使用: {tag}")
+
     for path in sorted(root.rglob("*.md")):
         if ".git" in path.parts:
             continue
@@ -324,10 +340,31 @@ def render_page_index(root, records, vocab):
                 target = page.path.relative_to(root).as_posix()
                 lines.append(f"- `{page.meta['id']}` — [{page.meta['title']}]({target})")
         lines.append("")
+    config = vocab.get("index_groups") or {}
+    groups = config.get("groups") or []
+    excluded = set(config.get("exclude_types") or [])
+    if groups:
+        title = config.get("title") or "按分类检索"
+        lines += [f"## {title}", "",
+                  "> 按页面标签聚合，一个页面可出现在多组；完整标签索引见下节。", ""]
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
+            tags = [tag for tag in group.get("tags") or [] if isinstance(tag, str)]
+            matched = sorted((page for page in records
+                              if page.meta["type"] not in excluded
+                              and set(page.meta.get("tags") or []) & set(tags)),
+                             key=lambda item: item.meta["id"])
+            if not matched:
+                continue
+            links = "；".join(f"[{page.meta['title']}]({page.path.relative_to(root).as_posix()})"
+                             for page in matched)
+            lines.append(f"- **{group.get('label')}**（{'、'.join(tags)}）：{links}")
+        lines.append("")
     lines += ["## 按机制标签", ""]
-    for tag in sorted({tag for page in records for tag in page.meta["tags"]}):
+    for tag in sorted({tag for page in records for tag in page.meta.get("tags") or []}):
         links = [f"[{page.meta['title']}]({page.path.relative_to(root).as_posix()})"
-                 for page in records if tag in page.meta["tags"]]
+                 for page in records if tag in (page.meta.get("tags") or [])]
         lines.append(f"- `{tag}`：" + "；".join(links))
     return "\n".join(lines) + "\n"
 

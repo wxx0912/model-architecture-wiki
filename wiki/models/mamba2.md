@@ -24,7 +24,7 @@
     "state space model",
     "状态空间模型"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -71,13 +71,16 @@ chunked 算法（§6，Theorem 6.1）把半可分矩阵做块分解：对角块�
 
 - state 是跨 token 的递推量，大小固定（每 head `N × P` 级）、不随序列增长；推理时无 KV cache，只维护每层固定状态。
 - `A` 被收紧为 `scalar × identity`，结构上是 SISO（输入通道各自独立）＋标量衰减，有效状态规模为 `N · D`。
-- 范围事实：论文不含量化/低比特内容；官方仓库没有量化路径，已知 CUDA selective-scan kernel（Mamba-1 路径）为 fp32/fp16/bf16。
 
-**量化推断（本库推断）**
+**量化推断**
 
 - state 误差随步数递推累积，长序列、状态重置与 chunk 边界都要单独覆盖；短输入评测容易漏掉漂移。
 - 输入投影、局部卷积、门控、state update 与 readout 的校准轴不同，应分别统计误差。
 - 后端只有 fp32/fp16/bf16 kernel；在参考实现上做 fake quant 不能证明目标低比特后端可用。
+
+**未知项**
+
+- 论文不含量化/低比特内容；官方仓库没有量化路径，已知 CUDA selective-scan kernel（Mamba-1 路径）为 fp32/fp16/bf16。
 
 ## 结果边界
 

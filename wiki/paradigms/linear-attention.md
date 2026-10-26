@@ -26,7 +26,7 @@
     "线性注意力",
     "linear attention"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -72,7 +72,6 @@ KDA（Kimi Linear） S_t = (I − β_t k_t k_tᵀ) Diag(α_t) S_{t-1} + β_t k_t
 
 - state 是跨 token 的递推量，大小固定、不随序列增长（Kimi Linear 为每 head `128×128`）。
 - 门控与衰减引入了除法与倒数：Kimi Linear 提到两条数值约束：一般 DPLR 的细粒度衰减需要全精度二级 chunking（否则 half-precision matmul 用不满），累计衰减项的倒数可能数值不稳定；KDA 的受限 DPLR 形式把衰减提到 Householder 之外，因而免掉了这层二级 chunking，并用 `q/k` 的 L2Norm 稳定特征值。
-- 范围事实：三份来源都没有量化或低比特实验。
 
 **量化推断**
 
@@ -80,6 +79,10 @@ KDA（Kimi Linear） S_t = (I − β_t k_t k_tᵀ) Diag(α_t) S_{t-1} + β_t k_t
 - 门控的非线性与 delta 更新对异常值、scale 漂移和舍入误差敏感——论文给的是数值稳定性线索，不是量化误差实验。
 - 投影权重、门、state、state→output 读出与 chunk 边界是几条彼此不同的误差路径。
 - 混合 attention / linear 层要分别选校准与量化策略，统一配置可能掩盖真正的瓶颈。
+
+**未知项**
+
+- 三份来源都没有量化或低比特实验。
 
 ## 结果边界
 

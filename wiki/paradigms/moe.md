@@ -26,10 +26,9 @@
   "evidence_scope": "mixed",
   "aliases": [
     "mixture of experts",
-    "mixture-of-experts",
     "混合专家"
   ],
-  "updated": "2026-10-24"
+  "updated": "2026-10-26"
 }
 ---
 
@@ -76,6 +75,9 @@ y          = Σ_{i∈TopK(p(x))} p_i(x) · E_i(x)
 **结构事实**
 
 - 每个专家有自己的权重、激活分布与访问频率；router 的输出是离散选择（top-K），专家是否参与计算由它决定。
+
+**实现事实**（来自固定版本源码，须按该 revision 核对）
+
 - DeepSeek-V3 官方推理实现里存在 fp8 路径（`act_quant` 激活量化 + `fp8_gemm`），属于官方推理契约，不等于训练期契约。
 
 **量化推断**
