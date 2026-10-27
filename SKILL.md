@@ -1,58 +1,40 @@
 ---
 name: model-architecture-wiki
-description: 查询 AR、DiT、dLLM、MoE、线性注意力、SSM、多模态模型及其结构组件，为量化前的模型结构识别和约束分析提供可追溯资料。
-argument-hint: "[自然语言问题] | [--tag 标签 --type 类型] | [page-id]"
+description: 查询模型范式、结构组件、数据流及其量化关联，为理解新模型和核查结构提供可追溯知识。
+argument-hint: "[关键词] | [--tag 标签 --type 类型] | [page-id]"
 ---
 
 # Model Architecture Wiki
 
 ## 何时使用
 
-当任务需要识别模型范式、模块组成、张量数据流、特殊结构组件，或判断某个结构可能带来的量化检查项时使用。它不替代实际模型源码检查、数值敏感度分析或 PTQ 执行。
+需要理解模型结构、组件关系、实现差异或结构对量化的影响时使用。本库提供知识与核查线索；目标模型确认、算法选择和实验编排由调用方完成。
 
-## 查询路径
+## 如何查询
+
+以下命令在本 Skill 所在仓库根目录执行；路径相对于本文件。先搜具体模型，未命中或覆盖不足时继续查范式与组件；命中模型页后也可沿相关链接补读组件。检查页用于了解需要核实什么。
 
 ```bash
-python3 scripts/query.py "<关键词>" --limit 10
-python3 scripts/query.py --tag <标签> --type <paradigm|component|model|check>
-python3 scripts/get_page.py <page-id>
-python3 scripts/get_page.py <page-id> --follow-sources
-python3 scripts/preflight.py --list
-python3 scripts/preflight.py <profile-id>
-python3 scripts/preflight.py <profile-id> --config <checkpoint>/config.json --checkpoint <name-or-path> --source-revision <commit-or-tag>
-python3 scripts/preflight.py --config <checkpoint>/config.json --source-revision <commit-or-tag>
-python3 scripts/preflight.py --config <checkpoint>/config.json --state-dict-keys <checkpoint>/model.safetensors.index.json --source-revision <commit-or-tag>
-python3 scripts/preflight.py --config <checkpoint>/config.json --state-dict-keys <checkpoint>/model.safetensors.index.json --forward-manifest <run>/forward.json --source-revision <commit-or-tag>
-python3 scripts/preflight.py --config <checkpoint>/config.json --state-dict-keys <checkpoint>/model.safetensors.index.json --forward-manifest <run>/forward.json --source-revision <commit-or-tag> --strict-runtime
-python3 scripts/preflight.py --config <checkpoint>/config.json --source-revision <commit-or-tag> --quantization-view
-python3 scripts/validate.py
-python3 scripts/build_index.py --check
-python3 scripts/check_shared.py --peer ../quantization-algorithm-wiki
+python3 scripts/query.py "LLaDA"
+python3 scripts/query.py --tag dllm --type paradigm
+python3 scripts/get_page.py model-llada
+python3 scripts/get_page.py model-llada --follow-sources
 ```
 
-检索先匹配页面 id、标题、`aliases` 与 `tags`，没有命中再退回正文并标为弱相关，结果按 `type` 分组；`--tag` 按 `data/vocabulary.yaml` 的小写标签精确筛选，未登记的标签报错而不是静默返回空。`--follow-sources` 展开本地来源页正文，离线可用，末尾附来源 URL 供人工核对。来源可达性检查可显式指定代理：`python3 scripts/validate.py --check-external --proxy <proxy>`；HTTP(S) 代理使用 Python 标准库，SOCKS 代理不被支持，检查结果只表示 URL 可达。
+检索先匹配 id、标题、aliases 和 tags，无结果才搜索正文并标为弱相关。多词采用 AND；长问题先提炼为短关键词。`--tag` 按词表筛选，忽略大小写；`--type` 限定页面类型，`--limit` 控制数量，`--json` 提供结构化结果。可用分类见 [生成索引](index.generated.md)。未命中时换关键词或标签；仍无相关资料则说明知识缺口，不为命中而新增或强套 profile。
 
-先用关键词或标签缩小范围，再读取具体页面。模型页面用于确认整体组合，组件页面用于理解共性，check 页面用于生成结构核查清单。页面级 `confidence` 是证据总体强度；`evidence_scope: mixed` 表示正文同时含来源事实和结构推断，必须按章节标签继续区分，不能把量化推断当成已验证效果。页面 `sources` 指向 `sources/` 下的来源页；来源页记录实际读取形式、版本锚与“不能推出的结论”，不代表正文结论已被逐条复核。
+先读相关 Wiki 页；需要精确规格、实现细节或证据时，再用 `--follow-sources` 展开登记的本地来源记录。它不会下载原文，也不会自动展开所有 related 页面。
 
-代表性结构族保存在 `data/architecture-profiles.json`。处理具体 checkpoint 时，向 `preflight.py` 传入本地 `config.json` 和已知代码 revision；工具将直接读取的字段标为 `config-confirmed`，记录 JSON key 路径，并根据 query/KV head 数推断 MHA/GQA、根据专家字段提示 MoE。没有 `model_type` 的实现可通过 profile 的 `config_signatures` 按配置路径匹配。缺失字段保持 `unknown`；随后还要对照加载类、state dict、源码和 reference forward。profile 注册表已冻结：未登记 `model_type` 的模型必须显式传 profile ID（`preflight.py <profile-id>`，`--list` 可列出），不要靠新增 profile 适配新模型。profile 里的 `implementation.revision` 默认是 `unknown`，因此它是**结构候选模板**（路由到应读页面），不是某个实现版本的强证据。清单是**页面路由 + 待核实项**（每条含 `pages`），风险条目统一标“待核实”，不能直接当作精度结论。
+需要整理具体模型的结构证据时，可选用 `preflight.py`：`python3 scripts/preflight.py --list` 列出已有 profile，`python3 scripts/preflight.py llada-family` 读取对应模板。profile 是位置参数，不是查库前提；没有合适的 profile 仍可正常检索。输入 config、权重名与外部 forward 记录的用法见 [README](README.md)。工具不自动采集 forward，输出的检查项及 `not_assessed`/`unknown` 不代表已确认约束或没有约束。
 
-`--state-dict-keys` 会从 JSON key 列表、Hugging Face `weight_map` 或逐行 key 清单提取模块和连续索引，并将证据标为 `state-dict-confirmed`。只有明确 `complete: true` 的 key 清单才可填充未知的总层数/专家数；不完整清单只报告覆盖范围。参数名不能证明真实执行图、融合、shape 或数值行为，必须继续做源码和 reference forward 核对。
+## 如何理解知识
 
-`--forward-manifest` 接收 reference forward 导出的运行元数据（`source_revision`、`device`、`dtype`、`input_signature`）和节点观测（`name`、`shape`、`dtype`、`layout`），将其标为 `forward-confirmed`，并把元数据写入输出契约的 `runtime` 字段。严格模式要求运行元数据齐全；这只覆盖该次运行实际走过的路径，不能替代对其他长度、cache、模态、timestep 或 sampler 的验证。
+- 来源记录保留版本、阅读定位和“不能推出的结论”；Wiki 中的结构事实、实现事实、量化推断与未知项分别理解。页面级 confidence/evidence_scope 不能代替具体结论的证据。
+- 论文规格与典型实现不能直接当成当前 checkpoint 的事实。config 提供初步结构线索，权重名不能证明实际执行图，forward 观测只覆盖相应输入与路径。
+- 结构风险是待核实线索，不等于已测得的敏感层、格式限制或后端支持。知识命中和 preflight 通过都不能证明量化效果。
 
-`--strict-runtime` 在进入量化前检查 checkpoint、源码 revision、关键结构字段以及 state_dict/reference-forward 两类运行时证据；失败时必须先补齐缺口。通过该门槛不代表量化精度已经验证。
+## 如何回答
 
-### 紧凑上下文与约束边界
+按当前问题说明相关结构知识、必要来源与适用边界。涉及具体模型时，区分已有证据与待核实项；无需每次生成完整结构报告或量化计划。
 
-给下游量化阶段传递结构结果时可用 `--quantization-view`（字段名换成 `quantization_checks` 等，体积不一定更小），再读取输出的 `knowledge_page` 对应页面。存在运行时证据时，该视图优先保留 config、state_dict、forward 和推断证据；页面级来源事实仍由知识页面提供。`quantization_checks` 是页面路由与待核实项（每条含应读页面 `pages`），既不是已确认的量化约束，也不是候选方案；`quantization_constraints.status=not_assessed` 或其中的 `unknown` 不能解释成“没有约束”。目标 checkpoint、实现版本和部署后端确认之前，不得据此过滤量化格式或模块。
-
-## 输出契约
-
-回答结构问题时应说明：
-
-1. 页面支持的结构事实及来源；
-2. 当前目标模型仍需从配置、源码、权重名或运行图确认的内容；
-3. 可能影响量化的模块、数据分布、误差传播和部署接口；
-4. 不应直接当作硬约束的推断或经验。
-
-`confidence` 分为 `verified`、`source-reported`、`inferred`、`experimental`；`evidence_scope` 标记 `source-reported`、`inferred`、`experimental` 或 `mixed`。不要把 `source-reported` 或 `inferred` 改述成已在目标模型上运行验证。
+新增或修改知识时读 [AUTHORING](AUTHORING.md)；索引、校验与工具参数见 [README](README.md)，日常查询不需要运行维护流程。

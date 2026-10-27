@@ -48,7 +48,7 @@ DeepSeek-V2/V3 是 decoder-only 自回归模型，两个标志性结构是 **MLA
 | 总参 / 激活 | 236B / 21B | 671B / 37B |
 | 层数 | 60（第 1 层 dense） | 61（`n_dense_layers=3`） |
 | hidden | 5120 | 7168 |
-| attention | MLA：`n_h=128`、`d_h=128`、`d_c=512`、`d_h^R=64` | MLA：`q_lora_rank=1536`、`kv_lora_rank=512`、`qk_nope=128`、`qk_rope=64`、`v_head_dim=128` |
+| attention | MLA：`n_h=128`、`d_h=128`、`d_c=512`、`d_h^R=64` | MLA：`q_lora_rank=1536`、`kv_lora_rank=512`、`qk_nope_head_dim=128`、`qk_rope_head_dim=64`、`v_head_dim=128` |
 | MoE | 每层 2 共享 + 160 路由，每 token 激活 6，专家中间维 1536 | 每层 256 路由 + 1 共享，每 token 激活 8；`n_expert_groups=8`、`n_limited_groups=4`、`route_scale=2.5` |
 | 均衡 | device-limited routing + 三类辅助损失 | sigmoid affinity + 路由 bias 动态调整（论文称 auxiliary-loss-free，仍保留极小系数序列级 `L_Bal`）+ node-limited routing |
 | 上下文 | 128K | 128K |

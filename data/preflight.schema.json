@@ -1,74 +1,81 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Quantization Agent architecture preflight record",
-  "type": "object",
-  "required": ["schema_version", "profile_id", "knowledge_page", "model", "implementation", "runtime", "structure", "evidence", "checklist", "required_runtime_confirmation"],
-  "properties": {
-    "schema_version": {"const": 1},
-    "profile_id": {"type": "string", "minLength": 1},
-    "knowledge_page": {"type": "string", "minLength": 1},
-    "model": {
-      "type": "object",
-      "required": ["name", "checkpoint", "model_type", "architectures"],
-      "properties": {
-        "name": {"type": "string", "minLength": 1},
-        "checkpoint": {"type": "string", "minLength": 1},
-        "model_type": {"type": "string", "minLength": 1},
-        "architectures": {"type": ["string", "array"], "items": {"type": "string"}, "minItems": 1, "minLength": 1},
-        "num_hidden_layers": {"type": ["integer", "string"]},
-        "hidden_size": {"type": ["integer", "string"]},
-        "attention_layout": {"type": "string"},
-        "moe_layout": {"type": "string"},
-        "parameter_sharing": {"type": "array", "items": {"type": "string"}},
-        "special_paths": {"type": "array", "items": {"type": "string"}}
-      },
-      "additionalProperties": false
-    },
-    "implementation": {
-      "type": "object",
-      "required": ["repository", "revision"],
-      "properties": {
-        "repository": {"type": "string", "format": "uri"},
-        "revision": {"type": "string", "minLength": 1}
-      },
-      "additionalProperties": false
-    },
-    "runtime": {
-      "type": "object",
-      "required": ["source_revision", "device", "dtype", "input_signature"],
-      "properties": {
-        "source_revision": {"type": "string", "minLength": 1},
-        "device": {"type": "string", "minLength": 1},
-        "dtype": {"type": "string", "minLength": 1},
-        "input_signature": {"type": "string", "minLength": 1}
-      },
-      "additionalProperties": false
-    },
-    "structure": {
-      "type": "object",
-      "required": ["features", "num_hidden_layers", "hidden_size", "num_attention_heads", "num_key_value_heads", "num_experts", "num_experts_per_tok", "attention_layout", "moe_layout", "module_dependencies", "parameter_sharing", "special_paths", "tensor_flow"],
-      "properties": {
-        "features": {"type": "array", "items": {"type": "string"}},
-        "num_hidden_layers": {"type": ["integer", "string"]},
-        "hidden_size": {"type": ["integer", "string"]},
-        "num_attention_heads": {"type": ["integer", "string"]},
-        "num_key_value_heads": {"type": ["integer", "string"]},
-        "num_experts": {"type": ["integer", "string"]},
-        "num_experts_per_tok": {"type": ["integer", "string"]},
-        "attention_layout": {"type": "string"},
-        "moe_layout": {"type": "string"},
-        "module_dependencies": {"type": ["string", "array"]},
-        "parameter_sharing": {"type": "string"},
-        "special_paths": {"type": "array", "items": {"type": "string"}},
-        "tensor_flow": {"type": "string"}
-      },
-      "additionalProperties": false
-    },
-    "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
-    "checklist": {"type": "array", "items": {"$ref": "#/$defs/check"}},
-    "required_runtime_confirmation": {"type": "array", "items": {"type": "string"}}
-  },
+  "oneOf": [
+    {"$ref": "#/$defs/default"},
+    {"$ref": "#/$defs/compact"}
+  ],
   "$defs": {
+    "default": {
+    "type": "object",
+    "required": ["schema_version", "profile_id", "knowledge_page", "model", "implementation", "runtime", "structure", "evidence", "checklist", "required_runtime_confirmation"],
+    "properties": {
+      "schema_version": {"const": 1},
+      "profile_id": {"type": "string", "minLength": 1},
+      "knowledge_page": {"type": "string", "minLength": 1},
+      "model": {
+        "type": "object",
+        "required": ["name", "checkpoint", "model_type", "architectures"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "checkpoint": {"type": "string", "minLength": 1},
+          "model_type": {"type": "string", "minLength": 1},
+          "architectures": {"type": ["string", "array"], "items": {"type": "string"}, "minItems": 1, "minLength": 1},
+          "num_hidden_layers": {"type": ["integer", "string"]},
+          "hidden_size": {"type": ["integer", "string"]},
+          "attention_layout": {"type": "string"},
+          "moe_layout": {"type": "string"},
+          "parameter_sharing": {"type": "array", "items": {"type": "string"}},
+          "special_paths": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      },
+      "implementation": {
+        "type": "object",
+        "required": ["repository", "revision"],
+        "properties": {
+          "repository": {"type": "string", "format": "uri"},
+          "revision": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      },
+      "runtime": {
+        "type": "object",
+        "required": ["source_revision", "device", "dtype", "input_signature"],
+        "properties": {
+          "source_revision": {"type": "string", "minLength": 1},
+          "device": {"type": "string", "minLength": 1},
+          "dtype": {"type": "string", "minLength": 1},
+          "input_signature": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      },
+      "structure": {
+        "type": "object",
+        "required": ["features", "num_hidden_layers", "hidden_size", "num_attention_heads", "num_key_value_heads", "num_experts", "num_experts_per_tok", "attention_layout", "moe_layout", "module_dependencies", "parameter_sharing", "special_paths", "tensor_flow"],
+        "properties": {
+          "features": {"type": "array", "items": {"type": "string"}},
+          "num_hidden_layers": {"type": ["integer", "string"]},
+          "hidden_size": {"type": ["integer", "string"]},
+          "num_attention_heads": {"type": ["integer", "string"]},
+          "num_key_value_heads": {"type": ["integer", "string"]},
+          "num_experts": {"type": ["integer", "string"]},
+          "num_experts_per_tok": {"type": ["integer", "string"]},
+          "attention_layout": {"type": "string"},
+          "moe_layout": {"type": "string"},
+          "module_dependencies": {"type": ["string", "array"]},
+          "parameter_sharing": {"type": "string"},
+          "special_paths": {"type": "array", "items": {"type": "string"}},
+          "tensor_flow": {"type": "string"}
+        },
+        "additionalProperties": false
+      },
+      "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+      "checklist": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+      "required_runtime_confirmation": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
     "compact": {
       "type": "object",
       "required": ["schema_version", "profile_id", "knowledge_page", "model", "implementation", "runtime", "structure", "evidence", "omitted_profile_evidence_count", "quantization_checks", "quantization_constraints", "runtime_gaps"],
@@ -123,6 +130,5 @@
       },
       "additionalProperties": false
     }
-  },
-  "additionalProperties": false
+  }
 }

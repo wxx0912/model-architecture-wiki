@@ -59,7 +59,7 @@ routed 专家在 latent 空间计算（`W_FC1, W_gate ∈ R^{m×ℓ}`、`W_FC2 �
 | --- | --- | --- | --- | --- | --- | --- |
 | 16BT-2BA | 2048 | 64 | 6 | 2 | 1408 | 27 层；SwiGLU；消融主载体 |
 | 95BT-8BA | 4096 | 128 | 6 | 2 | 2688 | 32 层；Squared-ReLU |
-| Hybrid-73BT-8BA | 4096 | 128 | 6 | 2 | 2688 | 52 层；Mamba-2 块 128 heads、head dim 64、state dim 128、8 groups |
+| Hybrid-73BT-8BA | 4096 | 128 | 6 | 2 | 2688 | 52 层（原文括注 “24 Mamba/MoE, 4 Attn.”，按 24+24+4 读才自洽、原文未写清）；Mamba-2 块 128 heads、head dim 64、state dim 128、8 groups |
 
 消融（16BT-2BA，§4.1）：压缩比扫描显示 `α ≤ 4` 时质量保持，后续统一取 `α = 4`；只压 `d` 4× 而不扩专家会明显掉点，把 `N` 扩 `α` 倍可补回。
 
