@@ -32,7 +32,7 @@
 - 主题级说明放 `sources/topics/<topic>.md`，无 frontmatter。
 - `index.md` 是人工导航（术语歧义分流、阅读入口）；`index.generated.md` 与 `sources/INDEX.generated.md` 是生成物。
 
-**归类**：讲"这类结构如何执行、如何推理"→ paradigm；讲"结构件本身"→ component；讲"具体 checkpoint 的组合"→ model；讲"怎么核查、记录什么"→ check。模型只有引入范式页/组件页没有的结构时才有独立 model 页。
+**归类**：讲"这类结构如何执行、如何推理"→ paradigm；讲"结构件本身"→ component；讲"具体 checkpoint 的组合"→ model；讲"怎么核查、记录什么"→ check。新模型直接建 `wiki/models/` 页；只有当它引入范式页 / 组件页尚未覆盖的结构时，才先补对应 paradigm / component 页。
 
 ## 3. frontmatter
 
@@ -62,6 +62,8 @@
 - `excerpt_sha256`（可选）：无逐字片段时**必须为 `null`**。
 
 页面 `aliases` 放同义名、缩写和中英两种写法（如 `multi-head attention`、`多头注意力`）。检索按词面匹配，`aliases` 是唯一的别名载体：没有集中映射表，一条别名要写在所有该命中它的页面上；同一页不要写只在连字符或大小写上不同的重复项（P10 会报错）。
+
+**标签登记**：`tags` 的取值必须先写进 `data/vocabulary.yaml` 的 `tags`，再归入 `index_groups` 的某个分组——只登记 `tags` 会触发 P12。不对应单一结构类别、仅作总分类的标签（如 `quantization`）登记到 `cross_cutting_tags`，不进分组。
 
 ## 4. wiki 页正文骨架
 
@@ -172,7 +174,7 @@
 2. 读来源 → 写 `sources/<category>/<id>.md` 四节（第 6 节），按来源类型定侧重（第 7 节）。
 3. 定类型与目录（第 2 节归类），必要时先补 paradigm / component 页。
 4. 写 wiki 页正文（第 4 节骨架 + 第 5 节四桶）。
-5. 打 frontmatter：`tags` 取自 `vocabulary.yaml`，补 `aliases` / `related` / `sources`。
+5. 打 frontmatter：`tags` 取自 `vocabulary.yaml`（新增标签按第 3 节登记），补 `aliases` / `related` / `sources`。
 6. 需要时维护 `index.md`。`data/architecture-profiles.json` **不要随便新增**：只有结构稳定、后续会反复使用的一类模型才建 profile；普通新模型只加 model 页（注册表已冻结）。
 7. 跑校验：
 

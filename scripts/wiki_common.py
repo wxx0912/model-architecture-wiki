@@ -112,6 +112,14 @@ def _normalize(text):
     return re.sub(r"\s+", " ", re.sub(r"[\W_]+", " ", text.casefold())).strip()
 
 
+def _term_in(term, text):
+    """名称/标签匹配：ASCII 关键词按词首对齐，避免 "llm" 命中 "dllmquant" 这类子串误命中；
+    含非 ASCII（如中文）的关键词仍按子串匹配。"""
+    if term.isascii():
+        return any(token.startswith(term) for token in text.split())
+    return term in text
+
+
 def search(records, query="", tag=None, kind=None, limit=10):
     """先按名称、别名与标签检索；没有命中再退回正文，退回的条目为弱相关。
 
@@ -129,13 +137,14 @@ def search(records, query="", tag=None, kind=None, limit=10):
             names = [_normalize(name) for name in [meta["id"], meta["title"], *meta["aliases"]]]
             name_text = " ".join(names)
             tag_text = _normalize(" ".join(meta["tags"]))
-            haystack = " ".join([name_text, tag_text,
-                                 _normalize(page.body) if include_body else ""])
-            if not all(term in haystack for term in terms):
+            body_text = _normalize(page.body) if include_body else ""
+            hits = [(term, _term_in(term, name_text), _term_in(term, tag_text), _term_in(term, body_text))
+                    for term in terms]
+            if not all(name or tag or body for _, name, tag, body in hits):
                 continue
             exact = bool(query) and _normalize(query) in names
-            score = 100 * exact + sum(10 * (term in name_text) + 3 * (term in tag_text) + (term in haystack)
-                                      for term in terms)
+            score = 100 * exact + sum(10 * name + 3 * tag + (1 if (name or tag or body) else 0)
+                                      for _, name, tag, body in hits)
             rows.append((score, page, include_body))
         if rows or include_body:
             rows.sort(key=lambda row: (-row[0], row[1].meta["id"]))
@@ -317,10 +326,14 @@ def validate(root=ROOT):
             if line.startswith("| `"):
                 errors.append(f"S11 {path.relative_to(root).as_posix()}:{number}: 来源目录下不得使用来源表格")
 
-    # 分组里的标签必须真的被页面使用；标签本身不要求入组（总分类与跨切面标签由“按机制标签”一节覆盖）。
+    # 每个标签要么归入某个索引分组，要么登记为跨切面总分类（cross_cutting_tags）；
+    # 分组引用的标签必须真的被页面使用。
     grouped = {tag for group in (vocab.get("index_groups") or {}).get("groups") or []
                if isinstance(group, dict) for tag in group.get("tags") or []}
+    loose = {tag for tag in vocab.get("cross_cutting_tags") or [] if isinstance(tag, str)}
     used = {tag for page in records for tag in page.meta.get("tags") or []}
+    for tag in sorted(used - grouped - loose):
+        errors.append(f"P12 页面使用的标签既不在索引分组也未登记为跨切面标签: {tag}")
     for tag in sorted(grouped - used):
         warnings.append(f"P11 索引分组引用的标签没有页面使用: {tag}")
 

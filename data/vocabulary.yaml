@@ -56,6 +56,11 @@
     "routing",
     "state-update"
   ],
+  "cross_cutting_tags": [
+    "quantization",
+    "calibration",
+    "quantization-preflight"
+  ],
   "index_groups": {
     "title": "按结构特征检索",
     "exclude_types": [
